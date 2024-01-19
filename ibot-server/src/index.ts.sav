@@ -1,0 +1,92 @@
+// src/index.ts
+import express, { Request, Response } from "express";
+import bodyParser from "body-parser";
+import { OpenAI } from "openai";
+import cors from "cors";
+
+const app = express();
+app.use(cors());
+const PORT = 5205;
+
+//app.use(bodyParser.json());
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Set up OpenAI API key
+const OPENAI_API_KEY = "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";
+
+const openai = new OpenAI({
+  //apiKey: process.env["OPENAI_API_KEY"], // This is the default and can be omitted
+  apiKey: "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",
+});
+
+async function systemMessage(message: string) {
+  const chatCompletion = await openai.chat.completions.create({
+    messages: [{ role: "system", content: message }],
+    model: "gpt-3.5-turbo-1106",
+    max_tokens: 1024,
+    temperature: 0.5,
+  });
+  return chatCompletion;
+}
+
+async function userMessage(message: string) {
+  const chatCompletion = await openai.chat.completions.create({
+    messages: [{ role: "user", content: message }],
+    model: "gpt-3.5-turbo-1106",
+    max_tokens: 1024,
+    temperature: 0.5,
+  });
+  return chatCompletion;
+}
+
+app.post("/start-interview", async (req: Request, res: Response) => {
+  //console.log(req.body);
+  //console.log(req.body.content);
+
+  let prompt =
+    "You are a job interviewer, assisting someone to prepare for an upcoming job interview. \
+    Your task is to simulate a realistic interview experience. Provide constructive feedback \
+    on candidate's answers, offer suggestion for improvements and discuss techniques for effective \
+    communication. You personality is friendly and warm. Ask technical, behavioral, cultture fit \
+    situation questions. Limit your response to maximum of 3 sentences. Do not respond with a list of \
+    multiple questions at once. End every respond with a question to keep the conversation going. \
+    The job for this interview session is Python developer";
+
+  console.log(prompt);
+
+  try {
+    const response = await systemMessage(prompt);
+    //const interviewQuestion = response.choices[0].text.trim();
+    console.log("\n\n<<< Response: " + response.choices[0].message.content);
+    //console.log(response);
+    res.json({ question: response.choices[0].message.content });
+  } catch (error) {
+    console.error("Error starting interview:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.post("/submit-response", async (req: Request, res: Response) => {
+  //console.log(req.body);
+  //console.log(req.body.content);
+  //const { response } = req.body;
+
+  try {
+    // Process user response and provide feedback
+    // You may want to call OpenAI API for evaluation
+    const response = await userMessage(req.body.content);
+    //const interviewQuestion = response.choices[0].text.trim();
+    console.log("\n\n<<< Response: " + response.choices[0].message.content);
+    //console.log(response);
+    res.json({ question: response.choices[0].message.content });
+    //res.json({ feedback: "Your response was evaluated." });
+  } catch (error) {
+    console.error("Error submitting response:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});

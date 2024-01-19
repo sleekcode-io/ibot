@@ -1,0 +1,99 @@
+.button-container {
+  gap: 5px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25em;
+  background-color: white;
+  border-radius: 15px;
+  height: 20px;
+  width: 100px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.recording-circle {
+  background-color: rgb(252, 75, 75);
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+  animation: ease pulse 2s infinite;
+  /*margin-right: 0.2em;*/
+}
+
+.no-recording-circle {
+  background-color: #aaa7a7;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+  /*margin-right: 0.2em;*/
+}
+
+.recording-text {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-size: 0.75em;
+  color: white;
+}
+
+@keyframes pulse {
+  0% {
+    background-color: rgb(249, 75, 75);
+  }
+  50% {
+    background-color: #f69292;
+  }
+  100% {
+    background-color: rgb(252, 75, 75);
+  }
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  /*border-bottom: 0px dotted rgb(88, 88, 88); */
+  border-bottom: none;
+  border-collapse: collapse;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: rgb(88, 88, 88);
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 150%;
+  left: 50%;
+  margin-left: -60px;
+
+  /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: rgb(88, 88, 88) transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+.circle {
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+}

@@ -1,0 +1,121 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header-org {
+  background-color: linear-gradient(45deg, #010758, #490d61);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-header {
+  background-color: #403d84;
+  position: sticky;
+  top: 0;
+  display: flex;
+  height: 40px;
+  justify-content: left;
+  font-family: "Raleway", sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  align-items: center;
+  padding: 10px;
+  color: white;
+  gap: 10px;
+}
+
+.App-header span {
+  margin: 0 10px;
+}
+
+.App-title-row {
+  width: 600px;
+  display: flex;
+  justify-content: center; /* horizontal */
+  gap: 10px;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.hero {
+  width: 100%;
+  min-height: 100vh;
+  background-color: linear-gradient(45deg, #010758, #490d61);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+/* Import the custom font using @font-face */
+@font-face {
+  font-family: "HomemadeRobot";
+  src: local("HomemadeRobot"),
+    url("./fonts/HomemadeRobotExpanded-eZrRm.ttf") format("truetype"); /* Update with your custom font file path */
+  /* You can add additional font formats (e.g., woff, ttf) for better cross-browser support */
+}
+
+h1 {
+  font-family: "HomemadeRobot", sans-serif;
+  font-size: "28px";
+}
+
+select {
+  flex: 1;
+  color: #fff;
+  background: #403d84;
+  height: 50px;
+  padding: 0 20px;
+  font-size: 18px;
+  outline: 0;
+  border: 0;
+  border-radius: 35px;
+  appearance: none;
+  background-image: url(images/down-arrow.png);
+  background-repeat: no repeat;
+  background-position-x: 400px;
+  background-position-y: 20px;
+}
+
+.row {
+  width: 600px;
+  display: flex;
+  justify-content: center; /* horizontal */
+  gap: 20px;
+}
+
+.display {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center; /* vertical */
+  justify-content: center; /* horizontal */
+  gap: 2px;
+}
