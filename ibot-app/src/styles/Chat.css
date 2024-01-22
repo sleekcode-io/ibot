@@ -1,0 +1,142 @@
+/* Chat Window style sheet */
+
+.bot-message-container {
+  display: flex;
+  justify-content: start;
+  margin-left: 10px;
+  margin-right: 10px;
+  align-items: top;
+  margin-bottom: 10px;
+}
+
+.bot-avatar {
+  margin-top: 0px;
+  padding: 0px 8px;
+  align-items: center;
+}
+
+.bot-message {
+  display: flex;
+  margin-top: 20px;
+  margin-right: 65px;
+  padding: 8px 8px;
+  border: none;
+  border-radius: 0px 15px 15px 15px;
+  background-color: #803d84;
+  justify-content: start;
+  color: #fff;
+}
+
+.user-message-container {
+  display: flex;
+  justify-content: end;
+  margin-left: 10px;
+  margin-right: 10px;
+  align-items: top;
+  margin-bottom: 10px;
+}
+
+.user-avatar {
+  margin-left: 10px;
+  padding: 0px 8px;
+  align-items: center;
+}
+
+.user-message {
+  display: flex;
+  margin-top: 20px;
+  margin-left: 65px;
+  padding: 8px 8px;
+  border: none;
+  border-radius: 15px 0px 15px 15px;
+  background-color: #7a69f5;
+  justify-content: start;
+  color: #fff;
+}
+
+.chat-window {
+  justify-content: center;
+  background: #403d84;
+  color: #ddd;
+  border-radius: 10px;
+  width: 640px;
+  height: 520px;
+  padding: 10px;
+  margin-bottom: 20px;
+  margin-top: 0px;
+  text-align: start;
+  line-height: 1.5;
+  font-size: 14px;
+  overflow: auto;
+  resize: both;
+}
+
+.chat-message-container {
+  padding: 0px;
+  display: flex;
+  flex-direction: column-reverse;
+  height: 92%;
+  overflow-y: auto;
+}
+
+.input-container {
+  margin-left: 20px;
+  margin-right: 20px;
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.input-text {
+  width: calc(100% - 10px); /* Adjust the width as needed */
+  padding: 8px;
+  margin-right: 0px;
+  border-radius: 16px;
+}
+
+.chat-button {
+  padding: 6px 9px;
+  border: none;
+  cursor: pointer;
+  border-radius: 20px;
+}
+
+.send-button {
+  padding: 8px 16px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 16px;
+}
+
+.send-button:hover {
+  background-color: #2980b9;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 100px;
+  background-color: rgb(120, 120, 120);
+  color: #fff;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 5px 0;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}

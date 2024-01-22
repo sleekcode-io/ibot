@@ -1,3 +1,46 @@
+/* Webcam window style sheet */
+
+.webcam-container {
+  /* background: #803d84; */
+  color: #ddd;
+  border-radius: 10px;
+  width: 640px;
+  min-width: 640px;
+  max-width: 1024px;
+  height: 640px;
+  min-height: 640px;
+  max-height: 800px;
+  padding: 10px;
+  display: flex;
+  align-items: top;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  /* resize: both; // Allow both horizontal/veritcal resizing */
+  overflow: auto; /* Enable scrolling if the content exceeds the box size */
+}
+
+.webcam-button {
+  margin-top: 0px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 50px;
+}
+
+.webcam-toggle-button {
+  margin-top: 20px;
+  color: #ddd;
+  border-radius: 50px;
+  border: none;
+  width: 600px;
+  height: 50px;
+  writing-mode: inherit;
+  padding: 10px;
+  align-items: top;
+  font-size: 20px;
+  font-weight: 700;
+}
+
 .button-container {
   gap: 5px;
   display: flex;
@@ -15,26 +58,17 @@
 
 .recording-circle {
   background-color: rgb(252, 75, 75);
-  width: 1.5em;
-  height: 1.5em;
+  width: 1.8em;
+  height: 1.8em;
   border-radius: 50%;
   animation: ease pulse 2s infinite;
-  /*margin-right: 0.2em;*/
 }
 
 .no-recording-circle {
   background-color: #aaa7a7;
-  width: 1.5em;
-  height: 1.5em;
+  width: 1.8em;
+  height: 1.8em;
   border-radius: 50%;
-  /*margin-right: 0.2em;*/
-}
-
-.recording-text {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  font-size: 0.75em;
-  color: white;
 }
 
 @keyframes pulse {
@@ -52,14 +86,13 @@
 .tooltip {
   position: relative;
   display: inline-block;
-  /*border-bottom: 0px dotted rgb(88, 88, 88); */
   border-bottom: none;
   border-collapse: collapse;
 }
 
 .tooltip .tooltiptext {
   visibility: hidden;
-  width: 120px;
+  width: 100px;
   background-color: rgb(88, 88, 88);
   color: #fff;
   text-align: center;
@@ -77,7 +110,7 @@
 }
 
 .tooltip .tooltiptext::after {
-  content: "";
+  /* content: ; */
   position: absolute;
   top: 100%;
   left: 50%;
@@ -96,4 +129,28 @@
   border-radius: 50%;
   width: 35px;
   height: 35px;
+}
+
+.caption-text {
+  position: absolute;
+  bottom: -100px; /* Adjust this value as needed */
+  width: 600px;
+  max-height: 30px; /* Adjust the max-height as needed */
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  border-radius: 5px;
+  overflow-y: auto;
+  opacity: 0.7;
+}
+
+.microphone-button {
+  margin-left: 0px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 50px;
 }

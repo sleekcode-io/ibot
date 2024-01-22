@@ -6,18 +6,18 @@ import "./App.css";
 
 const App: React.FC = () => {
   return (
-    <div
-      className="App"
-      style={{
-        backgroundImage: `linear-gradient(45deg, #010758, #490d61)`,
-        height: "150vh",
-        padding: "20px",
-        color: "white",
-        fontSize: "30px",
-      }}
-    >
-      <h1>I B O T</h1>
-      <img src={iBotImage} width="200px" height="200px" alt="Robot" />
+    <div className="App">
+      <div className="App-title-row">
+        <img src={iBotImage} width="150px" height="150px" alt="Robot" />
+        <div
+          style={{
+            fontFamily: "HomemadeRobot",
+            fontSize: "50px",
+          }}
+        >
+          I B O T
+        </div>
+      </div>
       <div>
         <Session />
       </div>

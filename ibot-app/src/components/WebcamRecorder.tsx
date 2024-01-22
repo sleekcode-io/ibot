@@ -1,17 +1,36 @@
 import React, { useState, useRef, useEffect } from "react";
+import TranscriptDownloadImage from "../images/transcript-download.png";
+import VideoDownloadImage from "../images/video-download.png";
+import CaptionImage from "../images/subtitles.png";
 import "../styles/WebcamRecorder.css";
 import "../App.css";
-import DownloadImage from "../images/downloads.png";
-import closeWebcamImage from "../images/exit.png";
-import { start } from "repl";
+import SpeechToText from "./SpeechToText";
 
 interface WebcamRecorderProps {
-  onCloseWebcam: () => void;
+  sessionStatus: boolean;
+  webcamWindowStatus: boolean;
+  selectedLanguage: string;
+  transcriptMessages: string[];
+  onUserInput: (text: string) => void;
+  onWebcamWindowStatus: (webcamWindowStatus: boolean) => void;
 }
 
-const WebcamRecorder: React.FC<WebcamRecorderProps> = ({ onCloseWebcam }) => {
+const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
+  sessionStatus,
+  webcamWindowStatus,
+  selectedLanguage,
+  transcriptMessages,
+  onUserInput,
+  onWebcamWindowStatus,
+}) => {
+  const [showWebcam, setShowWebcam] = useState(false);
+  const [caption, setCaption] = useState(false);
   const [recording, setRecording] = useState(false);
   const [recordedVideoURL, setRecordedVideoURL] = useState<string | null>(null);
+  const [captionText, setCaptionText] = useState<string>("Ready to record");
+
+  // const [width, setWidth] = useState(400); // Initial width
+  // const [height, setHeight] = useState(300); // Initial height
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -24,6 +43,7 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({ onCloseWebcam }) => {
         // Get user media (camera) stream
         const stream = await navigator.mediaDevices.getUserMedia({
           video: true,
+          audio: true,
         });
 
         // Set the video stream as the source for the video element
@@ -47,11 +67,36 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({ onCloseWebcam }) => {
         mediaRecorderRef.current.stop();
       }
     };
-  }, []);
+  }, [showWebcam]);
 
-  // Close webcam window
-  const closeWebcam = () => {
-    onCloseWebcam();
+  useEffect(() => {
+    console.log("transcriptMessage:" + transcriptMessages[0]);
+
+    if (caption && transcriptMessages.length) {
+      console.log("transcriptMessage:" + transcriptMessages[0].slice(5));
+      setCaptionText(transcriptMessages[0].slice(5));
+    }
+    if (webcamWindowStatus == false && showWebcam == true) {
+      setShowWebcam(false);
+    }
+  }, [transcriptMessages, webcamWindowStatus]);
+
+  const handleToggleWebcam = () => {
+    console.log("handleToggleWebcam: " + showWebcam);
+    if (showWebcam) {
+      closeWebcamWindow();
+    }
+    onWebcamWindowStatus(!showWebcam);
+    setShowWebcam((prevShowWebcam) => !prevShowWebcam);
+  };
+
+  const handleToggleCaption = () => {
+    console.log("handleToggleCaption");
+    if (caption) {
+      // Clear caption text as we are about to go off
+      setCaptionText("");
+    }
+    setCaption((prevCaption) => !prevCaption);
   };
 
   const startRecording = () => {
@@ -66,6 +111,7 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({ onCloseWebcam }) => {
       chunksRef.current = []; // Clear any previous chunks
       mediaRecorderRef.current.start();
       setRecording(true);
+      setCaptionText("Recording...");
     } catch (error) {
       console.error("Error accessing webcam:", error);
     }
@@ -99,6 +145,7 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({ onCloseWebcam }) => {
 
     // Reset state and chunks
     setRecording(false);
+    setCaptionText("Recording complete. Click 'Download' to save.");
     chunksRef.current = [];
 
     // Restart recording if needed
@@ -108,8 +155,12 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({ onCloseWebcam }) => {
     // }
   };
 
-  const handleDownload = () => {
+  const handleVideoDownload = () => {
     console.log("handleDownload");
+    if (!recordedVideoURL) {
+      // No video available to download
+      return;
+    }
     // Create a temporary anchor element
     const downloadLink = document.createElement("a");
     downloadLink.href = recordedVideoURL || "";
@@ -123,81 +174,174 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({ onCloseWebcam }) => {
     document.body.removeChild(downloadLink);
   };
 
-  return (
-    <div>
-      <video ref={videoRef} autoPlay playsInline muted={!recording}>
-        <track kind="captions" />
-      </video>
-      <div className="row" style={{ marginTop: "5px" }}>
-        {recording ? (
-          <button
-            onClick={stopRecording}
-            style={{
-              backgroundColor: "#fff",
-              border: "none",
-              width: "33px",
-              height: "33px",
-              borderRadius: "50%",
-              cursor: "pointer",
-            }}
-          >
-            <div className="tooltip">
-              <div className="recording-circle"></div>
-              <span className="tooltiptext">Stop recording</span>
-            </div>
-          </button>
-        ) : (
-          <button
-            onClick={startRecording}
-            style={{
-              backgroundColor: "#fff",
-              paddingTop: "px",
-              width: "32px",
-              height: "32px",
-              borderRadius: "50%",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            <div className="tooltip">
-              <div className="no-recording-circle"></div>
-              <span className="tooltiptext">Start recording</span>
-            </div>
-          </button>
-        )}
-        <button
-          onClick={handleDownload}
-          style={{
-            backgroundColor: recordedVideoURL ? "#fff" : "#ccc",
-            border: "none",
-            cursor: "pointer",
-            width: "32px",
-            height: "32px",
-            borderRadius: "50%",
-          }}
-        >
-          <div className="tooltip">
-            <img src={DownloadImage} alt="D" width="16px" height="16px" />
-            <span className="tooltiptext">Download recorded video</span>
+  const handleDownloadTranscript = () => {
+    console.log("handleDownloadTranscript");
+    if (!transcriptMessages.length) {
+      // No transcript available to download
+      return;
+    }
+    // Download transcript
+    const element = document.createElement("a");
+    const file = new Blob([transcriptMessages.reverse().join("\n\n")], {
+      type: "text/plain;charset=utf-8",
+    });
+    element.href = URL.createObjectURL(file);
+    element.download = "transcript.txt";
+    document.body.appendChild(element); // Required for this to work in FireFox
+    element.click();
+  };
+
+  const showWebcamWindow = () => {
+    console.log("showWebcamWindow");
+    // Set webcam window visible
+    return (
+      <div
+        className="webcam-container"
+        style={{
+          backgroundColor: "#96419c",
+        }}
+      >
+        <div className="display-vertical">
+          <div>
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted={!recording}
+              width="100%"
+              height="100%"
+            >
+              <track
+                kind="captions"
+                srcLang={selectedLanguage}
+                label="English"
+              />
+            </video>
           </div>
-        </button>
-        <button
-          onClick={closeWebcam}
-          style={{
-            backgroundColor: "#fff",
-            border: "none",
-            cursor: "pointer",
-            width: "32px",
-            height: "32px",
-            borderRadius: "50%",
-          }}
-        >
-          <div className="tooltip">
-            <img src={closeWebcamImage} alt="D" width="16px" height="16px" />
-            <span className="tooltiptext">Close webcam</span>
+          <div className="caption-text">{captionText}</div>
+          <div className="display-horizontal" style={{ marginTop: "0px" }}>
+            {recording ? (
+              <button
+                className="webcam-button"
+                onClick={stopRecording}
+                style={{
+                  backgroundColor: "#fff",
+                }}
+              >
+                <div className="tooltip">
+                  <div className="recording-circle"></div>
+                  <span className="tooltiptext">Stop recording</span>
+                </div>
+              </button>
+            ) : (
+              <button
+                className="webcam-button"
+                onClick={startRecording}
+                style={{
+                  backgroundColor: "#fff",
+                }}
+              >
+                <div className="tooltip">
+                  <div className="no-recording-circle"></div>
+                  <span className="tooltiptext">Start recording</span>
+                </div>
+              </button>
+            )}
+            <button
+              className="webcam-button"
+              onClick={handleVideoDownload}
+              style={{
+                backgroundColor: recordedVideoURL ? "#fff" : "#ccc",
+              }}
+            >
+              <div className="tooltip">
+                <img
+                  src={VideoDownloadImage}
+                  alt="D"
+                  width="24px"
+                  height="24px"
+                />
+                {recordedVideoURL ? (
+                  <span className="tooltiptext">Download recorded video</span>
+                ) : (
+                  <span className="tooltiptext">
+                    No video available for download
+                  </span>
+                )}
+              </div>
+            </button>
+            <button
+              className="webcam-button"
+              onClick={handleDownloadTranscript}
+              style={{
+                backgroundColor: transcriptMessages.length ? "#fff" : "#ccc",
+              }}
+            >
+              <div className="tooltip">
+                <img
+                  src={TranscriptDownloadImage}
+                  alt="D"
+                  width="24px"
+                  height="24px"
+                />
+                {transcriptMessages.length ? (
+                  <span className="tooltiptext">
+                    Download conversation transcript
+                  </span>
+                ) : (
+                  <span className="tooltiptext">
+                    No transcript data for download
+                  </span>
+                )}
+              </div>
+            </button>
+            <button
+              className="webcam-button"
+              onClick={handleToggleCaption}
+              style={{
+                backgroundColor: caption ? "#fff" : "#ccc",
+              }}
+            >
+              <div className="tooltip">
+                <img src={CaptionImage} alt="D" width="24px" height="24px" />
+                {caption ? (
+                  <span className="tooltiptext">Caption OFF</span>
+                ) : (
+                  <span className="tooltiptext">Caption ON</span>
+                )}
+              </div>
+            </button>
+            <SpeechToText
+              onTextCaptured={onUserInput}
+              selectedLanguage={selectedLanguage}
+              sessionStatus={sessionStatus}
+            />
           </div>
-        </button>
+        </div>
       </div>
+    );
+  };
+
+  const closeWebcamWindow = () => {
+    console.log("closeWebcamWindow");
+    // Cleanup ongoing recording & Set webcam window invisible
+    if (recording) {
+      stopRecording();
+    }
+  };
+
+  return (
+    <div className="display-vertical">
+      <button
+        className="webcam-toggle-button"
+        onClick={handleToggleWebcam}
+        style={{
+          background: showWebcam ? "#96419c" : "#803d84",
+        }}
+      >
+        Webcam
+      </button>
+      {showWebcam && showWebcamWindow()}
     </div>
   );
 };

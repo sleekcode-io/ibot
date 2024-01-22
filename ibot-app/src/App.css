@@ -1,16 +1,10 @@
 .App {
   text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+  background-image: linear-gradient(45deg, #010758, #490d61);
+  height: 300vh;
+  padding: 20px;
+  color: white;
+  font-size: 30px;
 }
 
 .App-header-org {
@@ -31,7 +25,7 @@
   display: flex;
   height: 40px;
   justify-content: left;
-  font-family: "Raleway", sans-serif;
+  font-family: Raleway, sans-serif;
   font-size: 28px;
   font-weight: 700;
   align-items: center;
@@ -48,6 +42,8 @@
   width: 600px;
   display: flex;
   justify-content: center; /* horizontal */
+  align-items: center; /* vertical */
+  width: 100%;
   gap: 10px;
 }
 
@@ -76,15 +72,15 @@
 
 /* Import the custom font using @font-face */
 @font-face {
-  font-family: "HomemadeRobot";
-  src: local("HomemadeRobot"),
-    url("./fonts/HomemadeRobotExpanded-eZrRm.ttf") format("truetype"); /* Update with your custom font file path */
+  font-family: HomemadeRobot;
+  src: local(HomemadeRobot),
+    url(./fonts/HomemadeRobotExpanded-eZrRm.ttf) format(truetype); /* Update with your custom font file path */
   /* You can add additional font formats (e.g., woff, ttf) for better cross-browser support */
 }
 
 h1 {
-  font-family: "HomemadeRobot", sans-serif;
-  font-size: "28px";
+  font-family: HomemadeRobot, sans-serif;
+  font-size: 28px;
 }
 
 select {
@@ -104,18 +100,20 @@ select {
   background-position-y: 20px;
 }
 
-.row {
-  width: 600px;
-  display: flex;
-  justify-content: center; /* horizontal */
-  gap: 20px;
-}
-
-.display {
+.display-horizontal {
   width: 100%;
   display: flex;
   flex-direction: row;
   align-items: center; /* vertical */
   justify-content: center; /* horizontal */
-  gap: 2px;
+  gap: 20px;
+}
+
+.display-vertical {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* vertical */
+  justify-content: center; /* horizontal */
+  gap: 20px;
 }

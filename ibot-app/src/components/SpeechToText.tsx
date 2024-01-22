@@ -1,5 +1,5 @@
 // SpeechToText.tsx
-import { on } from "events";
+//import { on } from "events";
 import React, { useState, useEffect } from "react";
 import SpeechRecognition, {
   useSpeechRecognition,
@@ -102,16 +102,20 @@ const SpeechToText: React.FC<SpeechToTextProps> = ({
   return (
     <div>
       <button
+        className="microphone-button"
         onClick={toggleListeningHandler}
         style={{
-          marginTop: "20px",
-          padding: "8px 12px",
-          border: "none",
-          borderRadius: "50px",
           backgroundColor: listening ? "red" : "green",
         }}
       >
-        <img src={Microphone} width="64px" height="64px" alt="Microphone" />
+        <div className="tooltip">
+          <img src={Microphone} width="32px" height="32px" alt="Microphone" />
+          {listening ? (
+            <span className="tooltiptext">Speak</span>
+          ) : (
+            <span className="tooltiptext">Listen</span>
+          )}
+        </div>
       </button>
     </div>
   );
