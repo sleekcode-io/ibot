@@ -1,10 +1,14 @@
 .App {
-  text-align: center;
   background-image: linear-gradient(45deg, #010758, #490d61);
-  height: 300vh;
-  padding: 20px;
+  height: 150vh;
+  width: 100vw;
+  padding: 50px;
   color: white;
   font-size: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: top;
+  align-items: center;
 }
 
 .App-header-org {
@@ -39,11 +43,10 @@
 }
 
 .App-title-row {
-  width: 600px;
+  width: 100%;
   display: flex;
   justify-content: center; /* horizontal */
   align-items: center; /* vertical */
-  width: 100%;
   gap: 10px;
 }
 
@@ -75,7 +78,7 @@
   font-family: HomemadeRobot;
   src: local(HomemadeRobot),
     url(./fonts/HomemadeRobotExpanded-eZrRm.ttf) format(truetype); /* Update with your custom font file path */
-  /* You can add additional font formats (e.g., woff, ttf) for better cross-browser support */
+  /* You can add additional font formats (e.g.; woff; ttf) for better cross-browser support */
 }
 
 h1 {
@@ -83,23 +86,9 @@ h1 {
   font-size: 28px;
 }
 
-select {
-  flex: 1;
-  color: #fff;
-  background: #403d84;
-  height: 50px;
-  padding: 0 20px;
-  font-size: 18px;
-  outline: 0;
-  border: 0;
-  border-radius: 35px;
-  appearance: none;
-  background-image: url(images/down-arrow.png);
-  background-repeat: no repeat;
-  background-position-x: 400px;
-  background-position-y: 20px;
-}
-
+/*
+  NOTE: Direction of align-items and justify-content depends on flex-direction
+*/
 .display-horizontal {
   width: 100%;
   display: flex;
@@ -113,7 +102,22 @@ select {
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center; /* vertical */
-  justify-content: center; /* horizontal */
-  gap: 20px;
+  align-items: center; /* horizontal */
+  justify-content: center; /* vertical */
+  gap: 0px;
+}
+
+.error-message {
+  position: sticky;
+  width: 96%;
+  max-height: 5vh;
+  align-items: center;
+  background-color: orange;
+  color: black;
+  padding: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 5px;
+  overflow-y: auto;
+  margin-bottom: 10px;
 }

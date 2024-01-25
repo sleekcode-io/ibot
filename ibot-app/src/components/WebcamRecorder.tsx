@@ -1,40 +1,43 @@
 import React, { useState, useRef, useEffect } from "react";
 import TranscriptDownloadImage from "../images/transcript-download.png";
-import VideoDownloadImage from "../images/video-download.png";
+//import VideoDownloadImage from "../images/video-download.png";
 import CaptionImage from "../images/subtitles.png";
+import CancelSpeakingImage from "../images/cancel-speaking.png";
+import SpeechToText from "./SpeechToText";
 import "../styles/WebcamRecorder.css";
 import "../App.css";
-import SpeechToText from "./SpeechToText";
+
+// TODO: The recording-related code is not used in the current version of the app.
+// It is commented out and kept here for future reference.
 
 interface WebcamRecorderProps {
   sessionStatus: boolean;
-  webcamWindowStatus: boolean;
+  showWebcam: boolean;
   selectedLanguage: string;
   transcriptMessages: string[];
   onUserInput: (text: string) => void;
-  onWebcamWindowStatus: (webcamWindowStatus: boolean) => void;
+  errorMessage: string;
 }
 
 const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
   sessionStatus,
-  webcamWindowStatus,
+  showWebcam,
   selectedLanguage,
   transcriptMessages,
   onUserInput,
-  onWebcamWindowStatus,
+  errorMessage,
 }) => {
-  const [showWebcam, setShowWebcam] = useState(false);
   const [caption, setCaption] = useState(false);
+  const [captionText, setCaptionText] = useState<string>("Caption ON");
+
   const [recording, setRecording] = useState(false);
-  const [recordedVideoURL, setRecordedVideoURL] = useState<string | null>(null);
-  const [captionText, setCaptionText] = useState<string>("Ready to record");
+  //const [recordedVideoURL, setRecordedVideoURL] = useState<string | null>(null);
 
   // const [width, setWidth] = useState(400); // Initial width
   // const [height, setHeight] = useState(300); // Initial height
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
 
   useEffect(() => {
     console.log("WebcamRecorder: FETCH_MEDIA");
@@ -76,102 +79,11 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
       console.log("transcriptMessage:" + transcriptMessages[0].slice(5));
       setCaptionText(transcriptMessages[0].slice(5));
     }
-    if (webcamWindowStatus == false && showWebcam == true) {
-      setShowWebcam(false);
-    }
-  }, [transcriptMessages, webcamWindowStatus]);
-
-  const handleToggleWebcam = () => {
-    console.log("handleToggleWebcam: " + showWebcam);
-    if (showWebcam) {
-      closeWebcamWindow();
-    }
-    onWebcamWindowStatus(!showWebcam);
-    setShowWebcam((prevShowWebcam) => !prevShowWebcam);
-  };
+  }, [transcriptMessages, caption]);
 
   const handleToggleCaption = () => {
     console.log("handleToggleCaption");
-    if (caption) {
-      // Clear caption text as we are about to go off
-      setCaptionText("");
-    }
     setCaption((prevCaption) => !prevCaption);
-  };
-
-  const startRecording = () => {
-    console.log("startRecording");
-    try {
-      const stream = (videoRef.current as HTMLVideoElement)
-        .srcObject as MediaStream;
-      mediaRecorderRef.current = new MediaRecorder(stream);
-      mediaRecorderRef.current.ondataavailable = handleDataAvailable;
-      mediaRecorderRef.current.onstop = handleStop;
-
-      chunksRef.current = []; // Clear any previous chunks
-      mediaRecorderRef.current.start();
-      setRecording(true);
-      setCaptionText("Recording...");
-    } catch (error) {
-      console.error("Error accessing webcam:", error);
-    }
-  };
-
-  const stopRecording = () => {
-    console.log("stopRecording");
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
-    }
-    setRecording(false);
-  };
-
-  const handleDataAvailable = (event: BlobEvent) => {
-    console.log("handleDataAvailable");
-    if (event.data.size > 0) {
-      chunksRef.current.push(event.data as never);
-    }
-  };
-
-  const handleStop = () => {
-    console.log("handleStop: recording " + recording);
-    const blob = new Blob(chunksRef.current, { type: "video/webm" });
-    const videoURL = URL.createObjectURL(blob);
-
-    // Do something with the recorded video URL (e.g., save to server or display)
-    console.log("Recorded video URL:", videoURL);
-
-    // Update state with the recorded video URL
-    setRecordedVideoURL(videoURL);
-
-    // Reset state and chunks
-    setRecording(false);
-    setCaptionText("Recording complete. Click 'Download' to save.");
-    chunksRef.current = [];
-
-    // Restart recording if needed
-    // if (mediaRecorderRef.current) {
-    //   mediaRecorderRef.current.start();
-    //   setRecording(true);
-    // }
-  };
-
-  const handleVideoDownload = () => {
-    console.log("handleDownload");
-    if (!recordedVideoURL) {
-      // No video available to download
-      return;
-    }
-    // Create a temporary anchor element
-    const downloadLink = document.createElement("a");
-    downloadLink.href = recordedVideoURL || "";
-    downloadLink.download = "recorded-video.webm"; // Set the file name
-
-    // Trigger a click on the anchor to start the download
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-
-    // Remove the anchor from the DOM
-    document.body.removeChild(downloadLink);
   };
 
   const handleDownloadTranscript = () => {
@@ -191,6 +103,99 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
     element.click();
   };
 
+  const handleCancelSpeaking = () => {
+    console.log("handleCancelSpeaking");
+    onUserInput("cancel-speaking");
+  };
+
+  // Video recording code ---------------------------------------------
+  // const chunksRef = useRef<Blob[]>([]);
+
+  // const startRecording = () => {
+  //   console.log("startRecording");
+  //   try {
+  //     const stream = (videoRef.current as HTMLVideoElement)
+  //       .srcObject as MediaStream;
+  //     mediaRecorderRef.current = new MediaRecorder(stream);
+  //     mediaRecorderRef.current.ondataavailable = handleDataAvailable;
+  //     mediaRecorderRef.current.onstop = handleStop;
+
+  //     chunksRef.current = []; // Clear any previous chunks
+  //     mediaRecorderRef.current.start();
+  //     setRecording(true);
+  //     //setCaptionText("Recording...");
+  //   } catch (error) {
+  //     console.error("Error accessing webcam:", error);
+  //   }
+  // };
+
+  // const stopRecording = () => {
+  //   console.log("stopRecording");
+  //   if (mediaRecorderRef.current) {
+  //     mediaRecorderRef.current.stop();
+  //   }
+  //   setRecording(false);
+  // };
+
+  // const handleDataAvailable = (event: BlobEvent) => {
+  //   console.log("handleDataAvailable");
+  //   if (event.data.size > 0) {
+  //     chunksRef.current.push(event.data as never);
+  //   }
+  // };
+
+  // const handleStop = () => {
+  //   console.log("handleStop: recording " + recording);
+  //   const blob = new Blob(chunksRef.current, { type: "video/webm" });
+  //   const videoURL = URL.createObjectURL(blob);
+
+  //   // Do something with the recorded video URL (e.g., save to server or display)
+  //   console.log("Recorded video URL:", videoURL);
+
+  //   // Update state with the recorded video URL
+  //   setRecordedVideoURL(videoURL);
+
+  //   // Reset state and chunks
+  //   setRecording(false);
+  //   //setCaptionText("Recording complete. Click 'Download' to save.");
+  //   chunksRef.current = [];
+
+  //   // Restart recording if needed
+  //   // if (mediaRecorderRef.current) {
+  //   //   mediaRecorderRef.current.start();
+  //   //   setRecording(true);
+  //   // }
+  // };
+
+  // const handleVideoDownload = () => {
+  //   console.log("handleDownload");
+  //   if (!recordedVideoURL) {
+  //     // No video available to download
+  //     return;
+  //   }
+  //   // Create a temporary anchor element
+  //   const downloadLink = document.createElement("a");
+  //   downloadLink.href = recordedVideoURL || "";
+  //   downloadLink.download = "recorded-video.webm"; // Set the file name
+
+  //   // Trigger a click on the anchor to start the download
+  //   document.body.appendChild(downloadLink);
+  //   downloadLink.click();
+
+  //   // Remove the anchor from the DOM
+  //   document.body.removeChild(downloadLink);
+  // };
+
+  // const closeWebcamWindow = () => {
+  //   console.log("closeWebcamWindow");
+  //   // Cleanup ongoing recording & Set webcam window invisible
+  //   if (recording) {
+  //     stopRecording();
+  //   }
+  // };
+
+  // End video recording related code
+
   const showWebcamWindow = () => {
     console.log("showWebcamWindow");
     // Set webcam window visible
@@ -202,6 +207,14 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
         }}
       >
         <div className="display-vertical">
+          <div
+            className="error-message"
+            style={{
+              visibility: errorMessage !== "" ? "visible" : "hidden",
+            }}
+          >
+            {errorMessage}
+          </div>
           <div>
             <video
               ref={videoRef}
@@ -213,14 +226,22 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
             >
               <track
                 kind="captions"
-                srcLang={selectedLanguage}
-                label="English"
+                // srcLang={selectedLanguage}
+                // label="English"
               />
             </video>
           </div>
-          <div className="caption-text">{captionText}</div>
-          <div className="display-horizontal" style={{ marginTop: "0px" }}>
-            {recording ? (
+          <div
+            className="caption-text"
+            style={{ visibility: caption ? "visible" : "hidden" }}
+          >
+            {caption && captionText}
+          </div>
+          <div
+            className="display-horizontal"
+            style={{ marginTop: "2vh", marginBottom: "3vh" }}
+          >
+            {/* {recording ? (
               <button
                 className="webcam-button"
                 onClick={stopRecording}
@@ -269,7 +290,7 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
                   </span>
                 )}
               </div>
-            </button>
+            </button> */}
             <button
               className="webcam-button"
               onClick={handleDownloadTranscript}
@@ -303,7 +324,7 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
               }}
             >
               <div className="tooltip">
-                <img src={CaptionImage} alt="D" width="24px" height="24px" />
+                <img src={CaptionImage} alt="D" width="28px" height="28px" />
                 {caption ? (
                   <span className="tooltiptext">Caption OFF</span>
                 ) : (
@@ -316,33 +337,29 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
               selectedLanguage={selectedLanguage}
               sessionStatus={sessionStatus}
             />
+            <button
+              //className="webcam-button"
+              onClick={handleCancelSpeaking}
+              style={{
+                border: "none",
+                backgroundColor: "transparent",
+              }}
+            >
+              <img
+                src={CancelSpeakingImage}
+                alt="S"
+                width="60px"
+                height="60px"
+              />
+            </button>
           </div>
         </div>
       </div>
     );
   };
 
-  const closeWebcamWindow = () => {
-    console.log("closeWebcamWindow");
-    // Cleanup ongoing recording & Set webcam window invisible
-    if (recording) {
-      stopRecording();
-    }
-  };
-
   return (
-    <div className="display-vertical">
-      <button
-        className="webcam-toggle-button"
-        onClick={handleToggleWebcam}
-        style={{
-          background: showWebcam ? "#96419c" : "#803d84",
-        }}
-      >
-        Webcam
-      </button>
-      {showWebcam && showWebcamWindow()}
-    </div>
+    <div className="display-vertical">{showWebcam && showWebcamWindow()}</div>
   );
 };
 

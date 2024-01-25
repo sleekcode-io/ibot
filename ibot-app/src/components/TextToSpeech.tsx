@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-
+import "../styles/TextToSpeech.css";
 interface TextToSpeechProps {
+  cancelSpeaking: boolean;
   text: string;
-  sessionStatus: boolean;
   onLangChanged: (text: string) => void;
 }
 
 const TextToSpeech: React.FC<TextToSpeechProps> = ({
+  cancelSpeaking,
   text,
-  sessionStatus,
   onLangChanged,
 }) => {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -39,9 +39,9 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
 
   // Handle bot's and user's response speech
   useEffect(() => {
-    console.log("TextToSpeech: SPEAK sessionStatus " + sessionStatus);
+    console.log("TextToSpeech: select voice: " + selectedVoice);
 
-    if (sessionStatus && selectedVoice) {
+    if (selectedVoice) {
       // Do this only when session is active and a voice is selected
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.voice = selectedVoice;
@@ -49,13 +49,13 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
     }
   }, [text, selectedVoice]);
 
-  // Handle cancelling ongoing bot's response speech
+  // Handle cancelling ongoing bot's response speech when user clicks on Stop Speaking button
   useEffect(() => {
-    console.log("TextToSpeech: CANCEL sessionStatus " + sessionStatus);
-    if (!sessionStatus) {
+    console.log("TextToSpeech: CANCEL_SPEAKING");
+    if (cancelSpeaking) {
       window.speechSynthesis.cancel();
     }
-  }, [sessionStatus]);
+  }, [cancelSpeaking]);
 
   // Handle voice change from user's selection. This can be done even if session is not active.
   const handleVoiceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -68,9 +68,6 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
       console.log(
         "TextToSpeech: previous selected language: " + selectedVoice.lang
       );
-      // TODO: need to translate text to selected language
-
-      text = "Hi, Welcome to iBot. We speak your language."; // default
 
       if (selectedVoice.lang.includes("en-"))
         text = "Hi, Welcome to iBot. We speak English."; // English
@@ -168,10 +165,8 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
     }
   };
 
-  let showText = false; // Show/DontShow text on browser screen
-
   return (
-    <div>
+    <div style={{ alignItems: "center" }}>
       <label htmlFor="voices"></label>
       <select id="voices" onChange={handleVoiceChange}>
         {voices.map((voice) => (
@@ -180,7 +175,6 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
           </option>
         ))}
       </select>
-      {showText && <div>{text}</div>}
     </div>
   );
 };

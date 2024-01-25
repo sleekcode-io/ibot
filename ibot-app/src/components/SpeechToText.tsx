@@ -1,5 +1,5 @@
 // SpeechToText.tsx
-//import { on } from "events";
+
 import React, { useState, useEffect } from "react";
 import SpeechRecognition, {
   useSpeechRecognition,
@@ -61,11 +61,11 @@ const SpeechToText: React.FC<SpeechToTextProps> = ({
     console.log(
       "SpeechToText: TEXT %s doneSpeaking %s",
       transcript,
-      doneSpeaking ? "true" : "false"
+      doneSpeaking
     );
     if (doneSpeaking) {
       // Stop speaking button is pressed, process prev transcript
-      onTextCaptured(".");
+      onTextCaptured("done-speaking");
       //toggleListeningHandler(); // Back to listening again
     } else {
       if (transcript !== "") {
@@ -111,9 +111,9 @@ const SpeechToText: React.FC<SpeechToTextProps> = ({
         <div className="tooltip">
           <img src={Microphone} width="32px" height="32px" alt="Microphone" />
           {listening ? (
-            <span className="tooltiptext">Speak</span>
+            <span className="tooltiptext">Click on stop speaking</span>
           ) : (
-            <span className="tooltiptext">Listen</span>
+            <span className="tooltiptext">Click to speak</span>
           )}
         </div>
       </button>

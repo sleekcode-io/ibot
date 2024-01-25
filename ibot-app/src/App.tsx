@@ -3,6 +3,7 @@ import React from "react";
 import Session from "./components/Session";
 import iBotImage from "./images/ibotai.png";
 import "./App.css";
+import "./styles/Sessions.css";
 
 const App: React.FC = () => {
   return (
@@ -18,7 +19,7 @@ const App: React.FC = () => {
           I B O T
         </div>
       </div>
-      <div>
+      <div className="session-container">
         <Session />
       </div>
     </div>
