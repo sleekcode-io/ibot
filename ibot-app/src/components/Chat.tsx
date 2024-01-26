@@ -71,7 +71,7 @@ const Chat: React.FC<ChatProps> = ({
       if (userInput.trim() !== "") {
         // User entered a non-empty string, send to bot for processing
         // and clear the input field
-        onUserInput(".");
+        onUserInput("done-typing");
         setUserInput("");
       }
     }
@@ -83,7 +83,7 @@ const Chat: React.FC<ChatProps> = ({
     if (userInput.trim() !== "") {
       // Send user input to bot for processing and responding
       // Also, clear the input field
-      onUserInput(".");
+      onUserInput("done-typing");
       setUserInput("");
     }
   };

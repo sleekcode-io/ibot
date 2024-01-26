@@ -165,7 +165,7 @@ const Session: React.FC = () => {
     console.log("handleUserResponse: " + response);
     if (sessionId < 0) {
       return; // there is no session open, do nothing...
-    } else if (response === "done-speaking") {
+    } else if (response === "done-speaking" || response === "done-typing") {
       // User pressed stop speaking button
       console.log("Session id: %d userResponse", sessionId, userResponse);
 
