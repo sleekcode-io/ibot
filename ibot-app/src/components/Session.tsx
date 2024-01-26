@@ -171,8 +171,10 @@ const Session: React.FC = () => {
 
       if (userResponse === "") return;
 
+      // Save user's response to conversation transcript
       let message = "You> " + userResponse;
       addTranscriptMessage(message);
+
       setCancelSpeaking(false); // reset cancel speaking flag
 
       // Send user's response to bot
@@ -182,6 +184,18 @@ const Session: React.FC = () => {
           id: sessionId,
           content: userResponse,
         });
+
+        // Success, process bot's response
+        setUserResponse(""); // Clear user's response buffer
+
+        // TODO: Handle bot feedback as needed ...
+        if (showWebcamWindow) {
+          // User is interacting with voice and webcam
+          setBotResponse(botResponse.data.response); // Speak bot response
+        }
+        // Save bot response to conversation transcript
+        message = "iBot> " + botResponse.data.response;
+        addTranscriptMessage(message);
       } catch (e: unknown) {
         let error = "";
         if (typeof e === "string") {
@@ -195,21 +209,11 @@ const Session: React.FC = () => {
           error +
           "). Check your connection and/or reload browser to restart. ";
         setErrorMessage(msg);
-        return;
       }
-      setUserResponse(""); // Clear user's response buffer
-
-      // Handle bot feedback as needed ...
-      if (showWebcamWindow) {
-        setBotResponse(botResponse.data.response); // Speak
-      }
-      message = "iBot> " + botResponse.data.response;
-      addTranscriptMessage(message);
-      // }
     } else if (response === "cancel-speaking") {
       setCancelSpeaking(true); // stop speaking
     } else {
-      setUserResponse(response);
+      setUserResponse(response); // Save user's response so far
     }
   };
 
@@ -220,9 +224,31 @@ const Session: React.FC = () => {
     setBotResponse(""); // Clear bot's response buffer
   };
 
-  const handleFormSubmit = (data: any) => {
-    console.log("handleFormSubmit: " + data);
-  };
+  // const handleFormSubmit = async (jobTitle: string, jobDescription: string) => {
+  //   console.log("handleFormSubmit: " + jobTitle);
+  //   if (sessionId < 0) {
+  //     return; // there is no session open, do nothing...
+  //   }
+  //   // Send job data to bot
+  //   let botResponse = null;
+  //   try {
+  //     botResponse = await axios.post("http://localhost:5205/job-data", {
+  //       id: sessionId,
+  //       content: jobTitle + ", " + jobDescription,
+  //     });
+  //   } catch (e: unknown) {
+  //     let error = "";
+  //     if (typeof e === "string") {
+  //       error = e.toUpperCase();
+  //     } else if (e instanceof Error) {
+  //       error = e.message;
+  //     }
+  //     console.error("handleUserResponse error: " + error);
+  //     let msg =
+  //       error + ". Check your connection and/or reload browser to restart. ";
+  //     setErrorMessage(msg);
+  //   }
+  // };
 
   return (
     <div className="display-vertical">
@@ -243,9 +269,11 @@ const Session: React.FC = () => {
         </button>
 
         <JobForm
+          sessionId={sessionId}
+          mode={"submission"}
           showJobWindow={showJobWindow}
-          onSubmit={handleFormSubmit}
           errorMessage={errorMessage}
+          onClose={handleToggleJobWindow}
         />
 
         <div
@@ -282,7 +310,7 @@ const Session: React.FC = () => {
         />
 
         <WebcamRecorder
-          sessionStatus={sessionStatus}
+          sessionId={sessionId}
           showWebcam={showWebcamWindow}
           selectedLanguage={language}
           transcriptMessages={transcriptMessages}

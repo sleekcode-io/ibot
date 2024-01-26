@@ -1,7 +1,6 @@
 /* Webcam window style sheet */
 .webcam-container {
   margin-top: 2vh;
-  margin-bottom: 2vh;
   color: #ddd;
   border-radius: 10px;
   width: 52vw;
@@ -43,7 +42,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 0.25em;
+  /* padding: 0.25em; */
   background-color: white;
   border-radius: 15px;
   height: 20px;

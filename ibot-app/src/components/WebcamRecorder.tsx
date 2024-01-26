@@ -3,6 +3,7 @@ import TranscriptDownloadImage from "../images/transcript-download.png";
 //import VideoDownloadImage from "../images/video-download.png";
 import CaptionImage from "../images/subtitles.png";
 import CancelSpeakingImage from "../images/cancel-speaking.png";
+//import JobDescriptionImage from "../images/job-description.png";
 import SpeechToText from "./SpeechToText";
 import "../styles/WebcamRecorder.css";
 import "../App.css";
@@ -11,7 +12,7 @@ import "../App.css";
 // It is commented out and kept here for future reference.
 
 interface WebcamRecorderProps {
-  sessionStatus: boolean;
+  sessionId: number;
   showWebcam: boolean;
   selectedLanguage: string;
   transcriptMessages: string[];
@@ -20,7 +21,7 @@ interface WebcamRecorderProps {
 }
 
 const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
-  sessionStatus,
+  sessionId,
   showWebcam,
   selectedLanguage,
   transcriptMessages,
@@ -37,10 +38,12 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
   // const [height, setHeight] = useState(300); // Initial height
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  //const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   useEffect(() => {
     console.log("WebcamRecorder: FETCH_MEDIA");
+    console.log("WebcamRecorder: showWebcam:" + showWebcam);
+
     const startWebcam = async () => {
       try {
         // Get user media (camera) stream
@@ -63,21 +66,31 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
     // Cleanup function for componentWillUnmount
     return () => {
       // Stop the recording if it's still in progress
-      if (
-        mediaRecorderRef.current &&
-        mediaRecorderRef.current.state === "recording"
-      ) {
-        mediaRecorderRef.current.stop();
-      }
+      // if (
+      //   mediaRecorderRef.current &&
+      //   mediaRecorderRef.current.state === "recording"
+      // ) {
+      //   mediaRecorderRef.current.stop();
+      // }
     };
   }, [showWebcam]);
 
   useEffect(() => {
-    console.log("transcriptMessage:" + transcriptMessages[0]);
+    console.log("WebcamRecorder: transcriptMessage:" + transcriptMessages[0]);
 
-    if (caption && transcriptMessages.length) {
-      console.log("transcriptMessage:" + transcriptMessages[0].slice(5));
-      setCaptionText(transcriptMessages[0].slice(5));
+    if (transcriptMessages.length > 0) {
+      if (caption) {
+        console.log("transcriptMessage:" + transcriptMessages[0].slice(5));
+        setCaptionText(transcriptMessages[0].slice(5));
+      }
+      // if (
+      //   transcriptMessages[0].includes("job description") ||
+      //   transcriptMessages[0].includes("details of the job")
+      // ) {
+      //   console.log("WebcamRecorder: showJobWindow");
+      //   setShowWebcamWindow(false);
+      //   setShowJobWindow(true);
+      // }
     }
   }, [transcriptMessages, caption]);
 
@@ -196,8 +209,8 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
 
   // End video recording related code
 
-  const showWebcamWindow = () => {
-    console.log("showWebcamWindow");
+  const webcamWindow = () => {
+    console.log("webcamWindow");
     // Set webcam window visible
     return (
       <div
@@ -242,55 +255,55 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
             style={{ marginTop: "2vh", marginBottom: "3vh" }}
           >
             {/* {recording ? (
+                <button
+                  className="webcam-button"
+                  onClick={stopRecording}
+                  style={{
+                    backgroundColor: "#fff",
+                  }}
+                >
+                  <div className="tooltip">
+                    <div className="recording-circle"></div>
+                    <span className="tooltiptext">Stop recording</span>
+                  </div>
+                </button>
+              ) : (
+                <button
+                  className="webcam-button"
+                  onClick={startRecording}
+                  style={{
+                    backgroundColor: "#fff",
+                  }}
+                >
+                  <div className="tooltip">
+                    <div className="no-recording-circle"></div>
+                    <span className="tooltiptext">Start recording</span>
+                  </div>
+                </button>
+              )}
               <button
                 className="webcam-button"
-                onClick={stopRecording}
+                onClick={handleVideoDownload}
                 style={{
-                  backgroundColor: "#fff",
+                  backgroundColor: recordedVideoURL ? "#fff" : "#ccc",
                 }}
               >
                 <div className="tooltip">
-                  <div className="recording-circle"></div>
-                  <span className="tooltiptext">Stop recording</span>
+                  <img
+                    src={VideoDownloadImage}
+                    alt="D"
+                    width="24px"
+                    height="24px"
+                  />
+                  {recordedVideoURL ? (
+                    <span className="tooltiptext">Download recorded video</span>
+                  ) : (
+                    <span className="tooltiptext">
+                      No video available for download
+                    </span>
+                  )}
                 </div>
-              </button>
-            ) : (
-              <button
-                className="webcam-button"
-                onClick={startRecording}
-                style={{
-                  backgroundColor: "#fff",
-                }}
-              >
-                <div className="tooltip">
-                  <div className="no-recording-circle"></div>
-                  <span className="tooltiptext">Start recording</span>
-                </div>
-              </button>
-            )}
-            <button
-              className="webcam-button"
-              onClick={handleVideoDownload}
-              style={{
-                backgroundColor: recordedVideoURL ? "#fff" : "#ccc",
-              }}
-            >
-              <div className="tooltip">
-                <img
-                  src={VideoDownloadImage}
-                  alt="D"
-                  width="24px"
-                  height="24px"
-                />
-                {recordedVideoURL ? (
-                  <span className="tooltiptext">Download recorded video</span>
-                ) : (
-                  <span className="tooltiptext">
-                    No video available for download
-                  </span>
-                )}
-              </div>
-            </button> */}
+              </button> */}
             <button
               className="webcam-button"
               onClick={handleDownloadTranscript}
@@ -333,34 +346,52 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
               </div>
             </button>
             <SpeechToText
+              sessionId={sessionId}
               onTextCaptured={onUserInput}
               selectedLanguage={selectedLanguage}
-              sessionStatus={sessionStatus}
             />
             <button
               //className="webcam-button"
               onClick={handleCancelSpeaking}
               style={{
-                border: "none",
                 backgroundColor: "transparent",
+                border: "none",
+                padding: "2px 0px 0px 0px",
               }}
             >
               <img
                 src={CancelSpeakingImage}
                 alt="S"
-                width="60px"
-                height="60px"
+                width="58px"
+                height="58px"
               />
             </button>
+            {/* <button
+              //className="webcam-button"
+              onClick={handleToggleJobWindow}
+              style={{
+                backgroundColor: "transparent",
+                border: "none",
+                padding: "2px 0px 0px 0px",
+              }}
+            >
+              <div className="tooltip">
+                <img
+                  src={JobDescriptionImage}
+                  alt="J"
+                  width="46px"
+                  height="46px"
+                />
+                <span className="tooltiptext">Send job description</span>
+              </div>
+            </button> */}
           </div>
         </div>
       </div>
     );
   };
 
-  return (
-    <div className="display-vertical">{showWebcam && showWebcamWindow()}</div>
-  );
+  return <div>{showWebcam && webcamWindow()}</div>;
 };
 
 export default WebcamRecorder;

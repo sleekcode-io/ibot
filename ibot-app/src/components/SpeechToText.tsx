@@ -7,15 +7,15 @@ import SpeechRecognition, {
 import Microphone from "../images/microphone.png";
 
 interface SpeechToTextProps {
+  sessionId: number;
   onTextCaptured: (text: string) => void;
   selectedLanguage: string;
-  sessionStatus: boolean;
 }
 
 const SpeechToText: React.FC<SpeechToTextProps> = ({
+  sessionId,
   onTextCaptured,
   selectedLanguage,
-  sessionStatus,
 }) => {
   const {
     transcript,
@@ -78,13 +78,13 @@ const SpeechToText: React.FC<SpeechToTextProps> = ({
 
   // Handle session status change event from parent
   useEffect(() => {
-    console.log("SpeechToText: SESSION status change " + sessionStatus);
+    console.log("SpeechToText: SESSION " + sessionId);
 
     // Regardless of session starts or closes, stop listening
     if (listening) {
       toggleListeningHandler(); // Stop listening
     }
-  }, [sessionStatus]);
+  }, [sessionId]);
 
   if (!browserSupportsSpeechRecognition) {
     console.log(
