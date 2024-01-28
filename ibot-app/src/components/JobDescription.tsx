@@ -20,25 +20,31 @@ const JobForm: React.FC<JobFormProps> = ({
 }) => {
   const [jobTitle, setJobTitle] = useState("");
   const [jobDescription, setJobDescription] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
 
   const handleJobDescriptionSubmit = async (e: React.FormEvent) => {
     console.log("handleJobDescriptionSubmit");
     // e.preventDefault();
     // Validate form fields if needed
     if (sessionId < 0) {
+      setStatusMessage(
+        "No session open. Please reload web browser to start a new session."
+      );
       return; // there is no session open, do nothing...
     }
+    setStatusMessage("Submitting job data... ");
     // Send job data to bot
     let botResponse = null;
     try {
       botResponse = await axios.post("http://localhost:5205/job-data", {
         id: sessionId,
         mode: mode,
-        content: jobTitle + ", " + jobDescription,
+        jobData: jobTitle + ", " + jobDescription,
       });
       // Clear the form after submission
       setJobTitle("");
       setJobDescription("");
+      setStatusMessage("Job description submitted successfully.");
     } catch (e: unknown) {
       let error = "";
       if (typeof e === "string") {
@@ -47,16 +53,18 @@ const JobForm: React.FC<JobFormProps> = ({
         error = e.message;
       }
       console.error("handleUserResponse error: " + error);
-      // let msg =
-      //   error + ". Check your connection and/or reload browser to restart. ";
-      //setErrorMessage(msg);
+      setStatusMessage("Job description submission failed: " + error);
     }
+    // Clear status message after 5 seconds
+    setTimeout(() => {
+      setStatusMessage("");
+    }, 10000);
   };
 
   const showJobForm = () => {
     return (
       <div
-        className="job-form-container"
+        className="display-container"
         style={{
           backgroundColor: "#96419c",
         }}
@@ -65,11 +73,27 @@ const JobForm: React.FC<JobFormProps> = ({
           <div
             className="error-message"
             style={{
-              visibility: errorMessage !== "" ? "visible" : "hidden",
+              backgroundColor: errorMessage !== "" ? "orange" : "#8deba6",
+              visibility:
+                errorMessage !== "" || statusMessage !== ""
+                  ? "visible"
+                  : "hidden",
             }}
           >
             {errorMessage !== "" && errorMessage}
+            {statusMessage !== "" && statusMessage}
           </div>
+          {/* <div
+            style={{
+              fontSize: "16px",
+              color: "#fff",
+              marginLeft: "1vw",
+              marginBottom: "2vh",
+            }}
+          >
+            Please give details of the job you are interviewing for here. Then,
+            choose how you want to conduct the interview afterward.
+          </div> */}
           <input
             type="text"
             id="jobTitle"

@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
-import TranscriptDownloadImage from "../images/transcript-download.png";
+import TranscriptDownloadImage from "../images/download-file.png";
 //import VideoDownloadImage from "../images/video-download.png";
-import CaptionImage from "../images/subtitles.png";
-import CancelSpeakingImage from "../images/cancel-speaking.png";
-//import JobDescriptionImage from "../images/job-description.png";
+import CaptionImage from "../images/cc.png";
+import CancelSpeakingImage from "../images/silent-blue-1.png";
+import JobDescriptionImage from "../images/checklist.png";
 import SpeechToText from "./SpeechToText";
 import "../styles/WebcamRecorder.css";
 import "../App.css";
+import JobForm from "./JobDescription";
 
 // TODO: The recording-related code is not used in the current version of the app.
 // It is commented out and kept here for future reference.
@@ -30,6 +31,7 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
 }) => {
   const [caption, setCaption] = useState(false);
   const [captionText, setCaptionText] = useState<string>("Caption ON");
+  const [showJobForm, setShowJobForm] = useState(false);
 
   const [recording, setRecording] = useState(false);
   //const [recordedVideoURL, setRecordedVideoURL] = useState<string | null>(null);
@@ -119,6 +121,11 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
   const handleCancelSpeaking = () => {
     console.log("handleCancelSpeaking");
     onUserInput("cancel-speaking");
+  };
+
+  const handleToggleJobWindow = () => {
+    console.log("handleToggleJobWindow");
+    setShowJobForm((prevShowJobForm) => !prevShowJobForm);
   };
 
   // Video recording code ---------------------------------------------
@@ -214,9 +221,11 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
     // Set webcam window visible
     return (
       <div
-        className="webcam-container"
+        className="display-container"
         style={{
+          height: "100%",
           backgroundColor: "#96419c",
+          visibility: showJobForm ? "hidden" : "visible",
         }}
       >
         <div className="display-vertical">
@@ -224,11 +233,12 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
             className="error-message"
             style={{
               visibility: errorMessage !== "" ? "visible" : "hidden",
+              padding: "5px 10px 30px 10px",
             }}
           >
             {errorMessage}
           </div>
-          <div>
+          <div style={{ marginTop: "2vh" }}>
             <video
               ref={videoRef}
               autoPlay
@@ -248,11 +258,11 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
             className="caption-text"
             style={{ visibility: caption ? "visible" : "hidden" }}
           >
-            {caption && captionText}
+            {captionText}
           </div>
           <div
             className="display-horizontal"
-            style={{ marginTop: "2vh", marginBottom: "3vh" }}
+            style={{ marginTop: "4vh", marginBottom: "0vh" }}
           >
             {/* {recording ? (
                 <button
@@ -305,44 +315,38 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
                 </div>
               </button> */}
             <button
-              className="webcam-button"
+              // className="webcam-button"
               onClick={handleDownloadTranscript}
               style={{
-                backgroundColor: transcriptMessages.length ? "#fff" : "#ccc",
+                backgroundColor: "transparent",
+                border: "none",
+                padding: "12px 0px 0px 0px",
               }}
             >
               <div className="tooltip">
                 <img
                   src={TranscriptDownloadImage}
                   alt="D"
-                  width="24px"
-                  height="24px"
+                  width="48px"
+                  height="48px"
                 />
-                {transcriptMessages.length ? (
-                  <span className="tooltiptext">
-                    Download conversation transcript
-                  </span>
-                ) : (
-                  <span className="tooltiptext">
-                    No transcript data for download
-                  </span>
-                )}
+                <span className="tooltiptext">
+                  Download conversation transcript
+                </span>
               </div>
             </button>
             <button
-              className="webcam-button"
+              // className="webcam-button"
               onClick={handleToggleCaption}
               style={{
-                backgroundColor: caption ? "#fff" : "#ccc",
+                backgroundColor: "transparent",
+                border: "none",
+                padding: "12px 0px 0px 0px",
               }}
             >
               <div className="tooltip">
-                <img src={CaptionImage} alt="D" width="28px" height="28px" />
-                {caption ? (
-                  <span className="tooltiptext">Caption OFF</span>
-                ) : (
-                  <span className="tooltiptext">Caption ON</span>
-                )}
+                <img src={CaptionImage} alt="D" width="48px" height="48px" />
+                <span className="tooltiptext">Toggle caption</span>
               </div>
             </button>
             <SpeechToText
@@ -356,23 +360,26 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
               style={{
                 backgroundColor: "transparent",
                 border: "none",
-                padding: "2px 0px 0px 0px",
+                padding: "12px 0px 0px 0px",
               }}
             >
-              <img
-                src={CancelSpeakingImage}
-                alt="S"
-                width="58px"
-                height="58px"
-              />
+              <div className="tooltip">
+                <img
+                  src={CancelSpeakingImage}
+                  alt="S"
+                  width="46px"
+                  height="46px"
+                />
+                <span className="tooltiptext">Cancel bot speech</span>
+              </div>
             </button>
-            {/* <button
+            <button
               //className="webcam-button"
               onClick={handleToggleJobWindow}
               style={{
                 backgroundColor: "transparent",
                 border: "none",
-                padding: "2px 0px 0px 0px",
+                padding: "12px 0px 0px 0px",
               }}
             >
               <div className="tooltip">
@@ -384,14 +391,27 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
                 />
                 <span className="tooltiptext">Send job description</span>
               </div>
-            </button> */}
+            </button>
           </div>
         </div>
       </div>
     );
   };
 
-  return <div>{showWebcam && webcamWindow()}</div>;
+  return (
+    <div>
+      {showJobForm && showWebcam && (
+        <JobForm
+          sessionId={sessionId}
+          mode={"interactive"}
+          showJobWindow={showJobForm}
+          errorMessage={errorMessage}
+          onClose={handleToggleJobWindow}
+        />
+      )}
+      {showWebcam && webcamWindow()}
+    </div>
+  );
 };
 
 export default WebcamRecorder;

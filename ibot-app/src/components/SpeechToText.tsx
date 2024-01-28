@@ -109,11 +109,11 @@ const SpeechToText: React.FC<SpeechToTextProps> = ({
         }}
       >
         <div className="tooltip">
-          <img src={Microphone} width="32px" height="32px" alt="Microphone" />
+          <img src={Microphone} width="50px" height="50px" alt="Microphone" />
           {listening ? (
-            <span className="tooltiptext">Click on stop speaking</span>
+            <span className="tooltiptext">Stop speaking</span>
           ) : (
-            <span className="tooltiptext">Click to speak</span>
+            <span className="tooltiptext">Start speaking</span>
           )}
         </div>
       </button>

@@ -45,9 +45,10 @@
 .App-title-row {
   width: 100%;
   display: flex;
+  flex-direction: column;
   justify-content: center; /* horizontal */
   align-items: center; /* vertical */
-  gap: 10px;
+  margin-bottom: 50px;
 }
 
 .App-link {
@@ -86,8 +87,26 @@ h1 {
   font-size: 28px;
 }
 
+.display-container {
+  margin-top: 2vh;
+  color: #ddd;
+  border-radius: 10px;
+  width: 55vw;
+  height: 80vh;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 400;
+  /* resize: both; // Allow both horizontal/veritcal resizing */
+  /* overflow: auto; /* Enable scrolling if the content exceeds the box size */
+}
+
 /*
-  NOTE: Direction of align-items and justify-content depends on flex-direction
+  NOTE: Direction of align-items and justify-content (vertical or horizontal) 
+  depends on flex-direction setting
 */
 .display-horizontal {
   width: 100%;
@@ -95,29 +114,43 @@ h1 {
   flex-direction: row;
   align-items: center; /* vertical */
   justify-content: center; /* horizontal */
-  gap: 10px;
+  gap: 1em;
 }
 
 .display-vertical {
   width: 100%;
+  height: 90%;
   display: flex;
   flex-direction: column;
   align-items: center; /* horizontal */
   justify-content: center; /* vertical */
-  gap: 0px;
+}
+
+.toggle-button {
+  margin-top: 10px;
+  color: #ddd;
+  border-radius: 50px;
+  border: none;
+  width: 55%;
+  height: 50px;
+  padding: 10px;
+  align-items: top;
+  font-size: 18px;
+  font-weight: 500;
 }
 
 .error-message {
   position: sticky;
-  width: 96%;
+  width: 92%;
   max-height: 5vh;
   align-items: center;
+  justify-content: center;
   background-color: orange;
   color: black;
-  padding: 8px;
-  font-size: 14px;
+  padding: 5px 10px 10px 20px;
+  font-size: 16px;
   font-weight: 500;
   border-radius: 5px;
   overflow-y: auto;
-  margin-bottom: 10px;
+  margin-bottom: 2vh;
 }

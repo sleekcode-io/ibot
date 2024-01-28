@@ -5,6 +5,7 @@ import TextToSpeech from "./TextToSpeech";
 import WebcamRecorder from "./WebcamRecorder";
 import JobForm from "./JobDescription";
 import Chat from "./Chat";
+import "../App.css";
 import "../styles/Sessions.css";
 
 const Session: React.FC = () => {
@@ -24,7 +25,9 @@ const Session: React.FC = () => {
 
   // Invoked on component mount
   useEffect(() => {
-    console.log("Session: status " + sessionStatus);
+    console.log(
+      "Session: status " + sessionStatus + ", sessionId " + sessionId
+    );
     // Keep session alive at all times
     if (!sessionStatus) {
       startSession();
@@ -39,15 +42,16 @@ const Session: React.FC = () => {
       // Custom logic to handle the refresh
       // Display a confirmation message or perform necessary actions
       endSession();
+      // Remove the event listener to avoid memory leaks
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
     // Add the event listener
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     // Cleanup function for componentWillUnmount
     return () => {
-      // Remove the event listener to avoid memory leaks
-      console.log(">> Remove beforeUnload event listener");
-      //window.removeEventListener("beforeunload", handleBeforeUnload);
+      // DO NOT Remove the event listener here or current session will not be closed.
+      // window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }); // Empty dependency array ensures the effect runs only once (on mount) and cleans up on unmount
 
@@ -72,12 +76,11 @@ const Session: React.FC = () => {
         error = e.message;
       }
       console.error("startSession error: " + error);
-      setErrorMessage(error);
       curSessionId = -1;
       let msg =
         "Error connecting with server (" +
         error +
-        "). Check your connection and/or reload browaser. ";
+        "). Check your connection and/or reload web browser to restart. ";
       setErrorMessage(msg);
       return;
     }
@@ -207,7 +210,7 @@ const Session: React.FC = () => {
         let msg =
           "Error communicating with server (" +
           error +
-          "). Check your connection and/or reload browser to restart. ";
+          "). Check your connection and/or reload web browser to restart. ";
         setErrorMessage(msg);
       }
     } else if (response === "cancel-speaking") {
@@ -265,7 +268,7 @@ const Session: React.FC = () => {
             background: showJobWindow ? "#96419c" : "#803d84",
           }}
         >
-          Job Tittle and Description
+          Job Details
         </button>
 
         <JobForm

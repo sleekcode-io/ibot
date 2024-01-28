@@ -119,7 +119,7 @@ const Chat: React.FC<ChatProps> = ({
   const showChatWindow = () => {
     console.log("showChatWindow");
     return (
-      <div className="display-vertical">
+      <div className="display-container">
         <div
           className="error-message"
           style={{
@@ -195,7 +195,7 @@ const Chat: React.FC<ChatProps> = ({
     <div>
       {showChat && (
         <div
-          className="chat-container"
+          className="display-container"
           style={{
             backgroundColor: "#96419c",
           }}
