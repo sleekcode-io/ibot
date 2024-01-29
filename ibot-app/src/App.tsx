@@ -25,7 +25,7 @@ const App: React.FC = () => {
           style={{
             color: "#e6e6e6",
             fontFamily: "Raleway",
-            fontSize: "18px",
+            fontSize: "20px",
             fontWeight: "600",
             marginBottom: "2vh",
           }}
@@ -33,7 +33,7 @@ const App: React.FC = () => {
           A Conversational AI for Job Interviews
         </div>
       </div>
-      <div className="session-container">
+      <div>
         <Session />
       </div>
     </div>

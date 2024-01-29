@@ -166,10 +166,13 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
   };
 
   return (
-    //<div className="toggle-button">
     <div style={{ alignItems: "center" }}>
       <label htmlFor="voices"></label>
-      <select id="voices" onChange={handleVoiceChange}>
+      <select
+        id="voices"
+        className="select-scroll"
+        onChange={handleVoiceChange}
+      >
         {voices.map((voice) => (
           <option key={voice.name} value={voice.name}>
             {`${voice.name} - ${voice.lang}`}
@@ -177,7 +180,6 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
         ))}
       </select>
     </div>
-    //</div>
   );
 };
 

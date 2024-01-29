@@ -10,19 +10,17 @@ import "../App.css";
 interface ChatProps {
   sessionStatus: boolean;
   showChat: boolean;
-  selectedLanguage: string;
+  //selectedLanguage: string;
   chatMessages: string[];
   onUserInput: (text: string) => void;
-  errorMessage: string;
 }
 
 const Chat: React.FC<ChatProps> = ({
   sessionStatus,
   showChat,
-  selectedLanguage,
+  //selectedLanguage,
   chatMessages,
   onUserInput,
-  errorMessage,
 }) => {
   const [showTranscript, setShowTranscript] = useState(false);
   const [userInput, setUserInput] = useState("");
@@ -120,14 +118,6 @@ const Chat: React.FC<ChatProps> = ({
     console.log("showChatWindow");
     return (
       <div className="display-container">
-        <div
-          className="error-message"
-          style={{
-            visibility: errorMessage !== "" ? "visible" : "hidden",
-          }}
-        >
-          {errorMessage}
-        </div>
         <div className="chat-window">
           <div className="chat-message-container">
             {chatMessages.map((message: string, index: number) => (

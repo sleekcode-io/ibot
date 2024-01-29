@@ -1,6 +1,6 @@
 .App {
   background-image: linear-gradient(45deg, #010758, #490d61);
-  height: 150vh;
+  height: 200vh;
   width: 100vw;
   padding: 50px;
   color: white;
@@ -48,7 +48,7 @@
   flex-direction: column;
   justify-content: center; /* horizontal */
   align-items: center; /* vertical */
-  margin-bottom: 50px;
+  margin-bottom: 5vh;
 }
 
 .App-link {
@@ -136,21 +136,33 @@ h1 {
   padding: 10px;
   align-items: top;
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .error-message {
   position: sticky;
-  width: 92%;
+  width: 90%;
   max-height: 5vh;
   align-items: center;
   justify-content: center;
   background-color: orange;
   color: black;
-  padding: 5px 10px 10px 20px;
+  padding: 5px 10px 20px 10px;
   font-size: 16px;
   font-weight: 500;
   border-radius: 5px;
   overflow-y: auto;
   margin-bottom: 2vh;
+}
+
+.button {
+  background-color: #d8d8d8;
+  color: #333;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  width: 25%;
+  padding: 10px;
 }

@@ -83,7 +83,7 @@ const JobForm: React.FC<JobFormProps> = ({
             {errorMessage !== "" && errorMessage}
             {statusMessage !== "" && statusMessage}
           </div>
-          {/* <div
+          <div
             style={{
               fontSize: "16px",
               color: "#fff",
@@ -93,7 +93,7 @@ const JobForm: React.FC<JobFormProps> = ({
           >
             Please give details of the job you are interviewing for here. Then,
             choose how you want to conduct the interview afterward.
-          </div> */}
+          </div>
           <input
             type="text"
             id="jobTitle"

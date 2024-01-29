@@ -9,16 +9,17 @@ import "../App.css";
 import "../styles/Sessions.css";
 
 const Session: React.FC = () => {
-  const [botResponse, setBotResponse] = useState<string>("");
+  // const [botResponse, setBotResponse] = useState<string>("");
+  // const [language, setLanguage] = useState("en-US");
+  // const [cancelSpeaking, setCancelSpeaking] = useState<boolean>(false);
+
   const [userResponse, setUserResponse] = useState<string>("");
   const [sessionId, setSessionId] = useState<number>(-1);
   const [sessionStatus, setSessionStatus] = useState<boolean>(false);
   const [showJobWindow, setJobWindow] = useState<boolean>(false);
   const [showChatWindow, setChatWindow] = useState<boolean>(false);
   const [showWebcamWindow, setWebcamWindow] = useState<boolean>(false);
-  const [language, setLanguage] = useState("en-US");
   const [transcriptMessages, setTranscriptMessages] = useState<string[]>([]);
-  const [cancelSpeaking, setCancelSpeaking] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   let curSessionId = -1;
@@ -78,16 +79,16 @@ const Session: React.FC = () => {
       console.error("startSession error: " + error);
       curSessionId = -1;
       let msg =
-        "Error connecting with server (" +
         error +
-        "). Check your connection and/or reload web browser to restart. ";
+        ". Check your connection and/or reload web browser to restart. ";
       setErrorMessage(msg);
+      //alert(msg);
       return;
     }
     setSessionId(response.data.sessionId);
     curSessionId = response.data.sessionId;
     setUserResponse("");
-    setBotResponse("");
+    //setBotResponse("");
     setErrorMessage(""); // Clear error message
     setSessionStatus(true);
     console.log("startSession: STARTED (sessionId: %d)", curSessionId);
@@ -101,7 +102,7 @@ const Session: React.FC = () => {
     }
     console.log("endSession: ENDED session %d", curSessionId);
     setUserResponse("");
-    setBotResponse("");
+    //setBotResponse("");
     let sessId = curSessionId;
     curSessionId = -1;
 
@@ -114,20 +115,20 @@ const Session: React.FC = () => {
     setSessionStatus(false);
   };
 
-  const handleToggleJobWindow = () => {
-    console.log("handleToggleJobWindow: " + showJobWindow);
-    if (!showJobWindow) {
-      // Close chat display, if it is open
-      if (showChatWindow) {
-        setChatWindow((prevShowChatWindows) => !prevShowChatWindows);
-      }
-      // Close webcam display, if it is open
-      if (showWebcamWindow) {
-        setWebcamWindow((prevShowWebcamWindows) => !prevShowWebcamWindows);
-      }
-    }
-    setJobWindow((prevShowJobWindow) => !prevShowJobWindow);
-  };
+  // const handleToggleJobWindow = () => {
+  //   console.log("handleToggleJobWindow: " + showJobWindow);
+  //   if (!showJobWindow) {
+  //     // Close chat display, if it is open
+  //     if (showChatWindow) {
+  //       setChatWindow((prevShowChatWindows) => !prevShowChatWindows);
+  //     }
+  //     // Close webcam display, if it is open
+  //     if (showWebcamWindow) {
+  //       setWebcamWindow((prevShowWebcamWindows) => !prevShowWebcamWindows);
+  //     }
+  //   }
+  //   setJobWindow((prevShowJobWindow) => !prevShowJobWindow);
+  // };
 
   const handleToggleChat = () => {
     console.log("handleToggleChat: " + showChatWindow);
@@ -178,7 +179,7 @@ const Session: React.FC = () => {
       let message = "You> " + userResponse;
       addTranscriptMessage(message);
 
-      setCancelSpeaking(false); // reset cancel speaking flag
+      // setCancelSpeaking(false); // reset cancel speaking flag
 
       // Send user's response to bot
       let botResponse = null;
@@ -192,10 +193,10 @@ const Session: React.FC = () => {
         setUserResponse(""); // Clear user's response buffer
 
         // TODO: Handle bot feedback as needed ...
-        if (showWebcamWindow) {
-          // User is interacting with voice and webcam
-          setBotResponse(botResponse.data.response); // Speak bot response
-        }
+        // if (showWebcamWindow) {
+        //   // User is interacting with voice and webcam
+        //   setBotResponse(botResponse.data.response); // Speak bot response
+        // }
         // Save bot response to conversation transcript
         message = "iBot> " + botResponse.data.response;
         addTranscriptMessage(message);
@@ -208,24 +209,23 @@ const Session: React.FC = () => {
         }
         console.error("handleUserResponse error: " + error);
         let msg =
-          "Error communicating with server (" +
-          error +
-          "). Check your connection and/or reload web browser to restart. ";
+          error + ". Check your connection and/or restart web browser. ";
         setErrorMessage(msg);
+        //alert(msg);
       }
-    } else if (response === "cancel-speaking") {
-      setCancelSpeaking(true); // stop speaking
+      // } else if (response === "cancel-speaking") {
+      //   setCancelSpeaking(true); // stop speaking
     } else {
       setUserResponse(response); // Save user's response so far
     }
   };
 
   // Handle language/voice change in TextToSpeech component
-  const handleLangChanged = async (lang: string) => {
-    console.log("handleLangChanged: old %s new %s", language, lang);
-    setLanguage(lang);
-    setBotResponse(""); // Clear bot's response buffer
-  };
+  // const handleLangChanged = async (lang: string) => {
+  //   console.log("handleLangChanged: old %s new %s", language, lang);
+  //   setLanguage(lang);
+  //   //setBotResponse(""); // Clear bot's response buffer
+  // };
 
   // const handleFormSubmit = async (jobTitle: string, jobDescription: string) => {
   //   console.log("handleFormSubmit: " + jobTitle);
@@ -255,12 +255,21 @@ const Session: React.FC = () => {
 
   return (
     <div className="display-vertical">
+      <div
+        className="error-message"
+        style={{
+          backgroundColor: errorMessage !== "" ? "orange" : "#ccc",
+        }}
+      >
+        {errorMessage !== "" ? errorMessage : ""}
+      </div>
       <div className="session-container">
-        <TextToSpeech
-          cancelSpeaking={cancelSpeaking}
+        {/* <TextToSpeech
+          cancelSpeaking={false}
           text={botResponse}
           onLangChanged={handleLangChanged}
-        />
+        /> */}
+        {/*
         <button
           className="job-toggle-button"
           onClick={handleToggleJobWindow}
@@ -270,21 +279,17 @@ const Session: React.FC = () => {
         >
           Job Details
         </button>
-
         <JobForm
           sessionId={sessionId}
           mode={"submission"}
           showJobWindow={showJobWindow}
           errorMessage={errorMessage}
           onClose={handleToggleJobWindow}
-        />
+        /> */}
 
-        <div
-          className="display-horizontal"
-          style={{ marginTop: showJobWindow ? "6.5vh" : "2vh" }}
-        >
+        <div className="display-horizontal">
           <button
-            className="chat-toggle-button"
+            className="toggle-button"
             onClick={handleToggleChat}
             style={{
               background: showChatWindow ? "#96419c" : "#803d84",
@@ -293,7 +298,7 @@ const Session: React.FC = () => {
             Chat
           </button>
           <button
-            className="webcam-toggle-button"
+            className="toggle-button"
             onClick={handleToggleWebcam}
             style={{
               background: showWebcamWindow ? "#96419c" : "#803d84",
@@ -306,19 +311,15 @@ const Session: React.FC = () => {
         <Chat
           sessionStatus={sessionStatus}
           showChat={showChatWindow}
-          selectedLanguage={language}
           chatMessages={transcriptMessages}
           onUserInput={handleUserResponse}
-          errorMessage={errorMessage}
         />
 
         <WebcamRecorder
           sessionId={sessionId}
           showWebcam={showWebcamWindow}
-          selectedLanguage={language}
           transcriptMessages={transcriptMessages}
           onUserInput={handleUserResponse}
-          errorMessage={errorMessage}
         />
       </div>
     </div>

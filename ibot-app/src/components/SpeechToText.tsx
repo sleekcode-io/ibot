@@ -10,12 +10,14 @@ interface SpeechToTextProps {
   sessionId: number;
   onTextCaptured: (text: string) => void;
   selectedLanguage: string;
+  showMicrophoneButton: boolean;
 }
 
 const SpeechToText: React.FC<SpeechToTextProps> = ({
   sessionId,
   onTextCaptured,
   selectedLanguage,
+  showMicrophoneButton,
 }) => {
   const {
     transcript,
@@ -87,14 +89,14 @@ const SpeechToText: React.FC<SpeechToTextProps> = ({
   }, [sessionId]);
 
   if (!browserSupportsSpeechRecognition) {
-    console.log(
-      "Browser does not support speech recognition. Try Chrome desktop browser ..."
+    alert(
+      "Browser does not support speech recognition. Try Chrome or Safari web browser instead ..."
     );
     return null;
   }
   if (!isMicrophoneAvailable) {
-    console.log(
-      "Microphone is not available! Please check system and browser settings."
+    alert(
+      "Microphone is not available! Please check system and browser settings and try again."
     );
     return null;
   }
@@ -106,6 +108,7 @@ const SpeechToText: React.FC<SpeechToTextProps> = ({
         onClick={toggleListeningHandler}
         style={{
           backgroundColor: listening ? "red" : "green",
+          visibility: showMicrophoneButton ? "visible" : "hidden",
         }}
       >
         <div className="tooltip">
