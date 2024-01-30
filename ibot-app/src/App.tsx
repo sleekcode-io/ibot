@@ -20,18 +20,18 @@ const App: React.FC = () => {
         >
           I B O T
         </div>
-        <div
-          //className="display-vertical"
-          style={{
-            color: "#e6e6e6",
-            fontFamily: "Raleway",
-            fontSize: "20px",
-            fontWeight: "600",
-            marginBottom: "2vh",
-          }}
-        >
-          A Conversational AI for Job Interviews
-        </div>
+      </div>
+      <div
+        //className="display-vertical"
+        style={{
+          color: "#ccc",
+          fontFamily: "Poppins, sans-serif",
+          fontSize: "0.6em",
+          fontWeight: "500",
+          marginBottom: "2vh",
+        }}
+      >
+        A Conversational AI Bot for Job Interviews
       </div>
       <div>
         <Session />

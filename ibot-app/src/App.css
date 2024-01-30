@@ -45,10 +45,10 @@
 .App-title-row {
   width: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center; /* horizontal */
   align-items: center; /* vertical */
-  margin-bottom: 5vh;
+  margin-bottom: 2vh;
 }
 
 .App-link {
@@ -92,16 +92,16 @@ h1 {
   color: #ddd;
   border-radius: 10px;
   width: 55vw;
-  height: 80vh;
-  padding: 10px;
+  height: 90vh;
+  /* padding: 10px; */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: 16px;
   font-weight: 400;
-  /* resize: both; // Allow both horizontal/veritcal resizing */
-  /* overflow: auto; /* Enable scrolling if the content exceeds the box size */
+  resize: both; /* Allow both horizontal/veritcal resizing */
+  overflow: auto; /* Enable scrolling if the content exceeds the box size */
 }
 
 /*
@@ -123,11 +123,10 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center; /* horizontal */
-  justify-content: center; /* vertical */
+  justify-content: top; /* vertical */
 }
 
 .toggle-button {
-  margin-top: 10px;
   color: #ddd;
   border-radius: 50px;
   border: none;
@@ -140,7 +139,6 @@ h1 {
 }
 
 .error-message {
-  position: sticky;
   width: 90%;
   max-height: 5vh;
   align-items: center;
@@ -152,7 +150,7 @@ h1 {
   font-weight: 500;
   border-radius: 5px;
   overflow-y: auto;
-  margin-bottom: 2vh;
+  margin-bottom: 5vh;
 }
 
 .button {

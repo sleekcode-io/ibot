@@ -107,7 +107,7 @@ const SpeechToText: React.FC<SpeechToTextProps> = ({
         className="microphone-button"
         onClick={toggleListeningHandler}
         style={{
-          backgroundColor: listening ? "red" : "green",
+          backgroundColor: listening ? "green" : "gray",
           visibility: showMicrophoneButton ? "visible" : "hidden",
         }}
       >

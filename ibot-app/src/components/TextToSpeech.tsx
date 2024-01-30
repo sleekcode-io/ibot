@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
+import "../App.css";
 import "../styles/TextToSpeech.css";
-interface TextToSpeechProps {
-  cancelSpeaking: boolean;
-  text: string;
-  onLangChanged: (text: string) => void;
-}
+import { TextToSpeechProps } from "./Interfaces";
 
 const TextToSpeech: React.FC<TextToSpeechProps> = ({
   cancelSpeaking,
@@ -166,11 +163,10 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
   };
 
   return (
-    <div style={{ alignItems: "center" }}>
-      <label htmlFor="voices"></label>
+    <div style={{ alignItems: "center", marginTop: "5vh" }}>
       <select
+        className="display-select"
         id="voices"
-        className="select-scroll"
         onChange={handleVoiceChange}
       >
         {voices.map((voice) => (

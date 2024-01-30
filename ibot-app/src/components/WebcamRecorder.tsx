@@ -4,24 +4,18 @@ import CaptionImage from "../images/cc.png";
 import CancelSpeakingImage from "../images/silent-blue-1.png";
 import VideoImage from "../images/video-camera.png";
 import TextImage from "../images/text.png";
+import closeButtonImage from "../images/cross.png";
+import sendButtonImage from "../images/send.png";
 import SpeechToText from "./SpeechToText";
 import TextToSpeech from "./TextToSpeech";
-import "../styles/WebcamRecorder.css";
 import "../App.css";
-
-// TODO: The recording-related code is not used in the current version of the app.
-// It is commented out and kept here for future reference.
-
-interface WebcamRecorderProps {
-  sessionId: number;
-  showWebcam: boolean;
-  transcriptMessages: string[];
-  onUserInput: (text: string) => void;
-}
+import "../styles/WebcamRecorder.css";
+import { WebcamRecorderProps } from "./Interfaces";
 
 const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
   sessionId,
   showWebcam,
+  //botResponse,
   transcriptMessages,
   onUserInput,
 }) => {
@@ -60,19 +54,30 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
     };
 
     startWebcam();
+    setBotResponse(""); // Clear bot response to avoid repeat speaking
   }, [showWebcam]);
 
   useEffect(() => {
-    console.log("WebcamRecorder: transcriptMessage:" + transcriptMessages[0]);
+    console.log(
+      "WebcamRecorder: transcriptMessage: %d",
+      transcriptMessages.length
+    );
 
     if (transcriptMessages.length > 0) {
-      if (transcriptMessages[0].includes("iBot>")) {
+      console.log(
+        "WebcamRecorder: processed: " + transcriptMessages[0].processed
+      );
+      if (
+        transcriptMessages[0].from === "iBot" &&
+        transcriptMessages[0].processed === false
+      ) {
         // TODO: last bot response to keep repeating if we leave and switch back to webcam window
-        setBotResponse(transcriptMessages[0].slice(5));
+        setBotResponse(transcriptMessages[0].msg);
+        transcriptMessages[0].processed = true;
       }
       if (caption) {
-        console.log("transcriptMessage:" + transcriptMessages[0].slice(5));
-        setCaptionText(transcriptMessages[0].slice(5));
+        console.log("transcriptMessage:" + transcriptMessages[0].msg);
+        setCaptionText(transcriptMessages[0].msg);
       }
     }
   }, [transcriptMessages, caption]);
@@ -148,7 +153,7 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
               height: "100%",
               paddingTop: "2vh",
               paddingBottom: "2vh",
-              paddingLeft: "3vw",
+              paddingLeft: "2vw",
               paddingRight: "2vw",
             }}
           >
@@ -157,6 +162,8 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
                 position: "absolute",
                 top: "0",
                 left: "0",
+                width: "100%",
+                height: "100%",
                 visibility: showWebcamVideo ? "hidden" : "visible",
               }}
             >
@@ -167,43 +174,71 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
                 required
                 placeholder="Copy and paste job description here... and click 'Send' button."
                 style={{
-                  width: "51.5vw",
-                  height: "50vh",
-                  marginLeft: "5vh",
+                  width: "90%",
+                  height: "80%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginLeft: "4vh",
+                  marginRight: "4vh",
                   marginTop: "2vh",
+                  marginBottom: "5vh",
                   overflow: "auto",
                 }}
               />
-              <div className="display-horizontal">
+              <div className="display-horizontal" style={{ gap: "5%" }}>
                 <button
-                  className="button"
                   onClick={handleToggleWebcamVideo}
+                  // className="button"
+                  // style={{
+                  //   backgroundColor: "#fff",
+                  //   gap: "2vw",
+                  // }}
                   style={{
-                    backgroundColor: "#fff",
-                    marginTop: "1vh",
-                    marginLeft: "6vw",
-                    gap: "2vw",
+                    backgroundColor: "transparent",
+                    border: "none",
+                    padding: "12px 0px 0px 0px",
+                    //visibility: showWebcamVideo ? "visible" : "hidden",
                   }}
                 >
-                  Close
+                  <img
+                    src={closeButtonImage}
+                    alt="D"
+                    width="60px"
+                    height="60px"
+                  />
                 </button>
                 <button
-                  className="button"
                   onClick={handleSendJobDescription}
+                  // className="button"
+                  // style={{
+                  //   backgroundColor: jobDescription !== "" ? "#fff" : "#d8d8d8",
+                  //   cursor: jobDescription !== "" ? "pointer" : "not-allowed",
+                  // }}
                   style={{
-                    marginTop: "1vh",
-                    backgroundColor: jobDescription !== "" ? "#fff" : "#d8d8d8",
+                    backgroundColor: "transparent",
+                    border: "none",
+                    padding: "12px 0px 0px 0px",
+                    opacity: jobDescription !== "" ? 1 : 0.7,
                     cursor: jobDescription !== "" ? "pointer" : "not-allowed",
+                    //visibility: showWebcamVideo ? "visible" : "hidden",
                   }}
                   type="submit"
                 >
-                  Send
+                  <img
+                    src={sendButtonImage}
+                    alt="D"
+                    width="50px"
+                    height="50px"
+                  />
                 </button>
               </div>
             </div>
             <div
               style={{
-                position: "absolute",
+                //position: "absolute",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
                 visibility: showWebcamVideo ? "visible" : "hidden",
               }}
             >
@@ -227,8 +262,7 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
           <div
             className="caption-text"
             style={{
-              marginTop: "52vh",
-              width: "51vw",
+              marginTop: "-5vh",
               visibility: caption && showWebcamVideo ? "visible" : "hidden",
             }}
           >
@@ -239,7 +273,8 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
             style={{
               marginTop: "5vh",
               marginLeft: "2vw",
-              marginBottom: "0vh",
+              marginBottom: "5vh",
+              gap: "2%",
             }}
           >
             <button
@@ -248,6 +283,8 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
                 backgroundColor: "transparent",
                 border: "none",
                 padding: "12px 0px 0px 0px",
+                opacity: transcriptMessages.length ? 1 : 0.6,
+                cursor: transcriptMessages.length ? "pointer" : "not-allowed",
                 visibility: showWebcamVideo ? "visible" : "hidden",
               }}
             >
@@ -289,6 +326,8 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
                 backgroundColor: "transparent",
                 border: "none",
                 padding: "12px 0px 0px 0px",
+                opacity: botResponse !== "" ? 1 : 0.6,
+                cursor: botResponse !== "" ? "pointer" : "not-allowed",
                 visibility: showWebcamVideo ? "visible" : "hidden",
               }}
             >

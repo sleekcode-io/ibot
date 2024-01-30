@@ -6,14 +6,7 @@ import userAvatar from "../images/user-avatar.png";
 import SendImage from "../images/send-message.png";
 import "../styles/Chat.css";
 import "../App.css";
-
-interface ChatProps {
-  sessionStatus: boolean;
-  showChat: boolean;
-  //selectedLanguage: string;
-  chatMessages: string[];
-  onUserInput: (text: string) => void;
-}
+import { TranscriptMessageProps, ChatProps } from "./Interfaces";
 
 const Chat: React.FC<ChatProps> = ({
   sessionStatus,
@@ -86,31 +79,37 @@ const Chat: React.FC<ChatProps> = ({
     }
   };
 
-  const handleMessageDisplay = (message: string) => {
+  const handleMessageDisplay = (message: TranscriptMessageProps) => {
     console.log("handleMessageDisplay: " + message);
-    if (message === "") {
+    if (message === null || message === undefined) {
       return;
     }
+    message.processed = true;
     // Display message
-    if (message.startsWith("iBot>")) {
+    if (message.from === "iBot") {
       // Bot's message
       return (
         <div className="bot-message-container">
           <div className="bot-avatar">
             <img src={iBotAvatar} alt="iBot" width="50px" height="50px" />
           </div>
-          <div className="bot-message">{message.slice(5)}</div>
+          <div className="bot-message">{message.msg}</div>
         </div>
       );
-    } else {
+    } else if (message.from === "You") {
       return (
         <div className="user-message-container">
-          <div className="user-message">{message.slice(5)}</div>
+          <div className="user-message">{message.msg}</div>
           <div className="user-avatar">
             <img src={userAvatar} alt="iBot" width="40px" height="40px" />
           </div>
         </div>
       );
+    } else {
+      console.log(
+        "handleMessageDisplay: Invalid message source: " + message.from
+      );
+      return;
     }
   };
 
@@ -120,11 +119,13 @@ const Chat: React.FC<ChatProps> = ({
       <div className="display-container">
         <div className="chat-window">
           <div className="chat-message-container">
-            {chatMessages.map((message: string, index: number) => (
-              <div key={index} className="chat-message">
-                {handleMessageDisplay(message)}
-              </div>
-            ))}
+            {chatMessages.map(
+              (message: TranscriptMessageProps, index: number) => (
+                <div key={index} className="chat-message">
+                  {handleMessageDisplay(message)}
+                </div>
+              )
+            )}
           </div>
           <div className="input-container">
             <input

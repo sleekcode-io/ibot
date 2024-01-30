@@ -2,14 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import "../styles/JobDescriptionForm.css";
 import "../App.css";
-
-interface JobFormProps {
-  sessionId: number;
-  mode: string;
-  showJobWindow: boolean;
-  errorMessage: string;
-  onClose: () => void;
-}
+import { JobFormProps } from "./Interfaces";
 
 const JobForm: React.FC<JobFormProps> = ({
   sessionId,

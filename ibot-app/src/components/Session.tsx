@@ -7,6 +7,7 @@ import JobForm from "./JobDescription";
 import Chat from "./Chat";
 import "../App.css";
 import "../styles/Sessions.css";
+import { TranscriptMessageProps } from "./Interfaces";
 
 const Session: React.FC = () => {
   // const [botResponse, setBotResponse] = useState<string>("");
@@ -19,7 +20,9 @@ const Session: React.FC = () => {
   const [showJobWindow, setJobWindow] = useState<boolean>(false);
   const [showChatWindow, setChatWindow] = useState<boolean>(false);
   const [showWebcamWindow, setWebcamWindow] = useState<boolean>(false);
-  const [transcriptMessages, setTranscriptMessages] = useState<string[]>([]);
+  const [transcriptMessages, setTranscriptMessages] = useState<
+    TranscriptMessageProps[]
+  >([]);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   let curSessionId = -1;
@@ -80,7 +83,7 @@ const Session: React.FC = () => {
       curSessionId = -1;
       let msg =
         error +
-        ". Check your connection and/or reload web browser to restart. ";
+        ". Check your Internet connection and reload web browser to restart. ";
       setErrorMessage(msg);
       //alert(msg);
       return;
@@ -160,9 +163,10 @@ const Session: React.FC = () => {
     setWebcamWindow((prevShowWebcamWindows) => !prevShowWebcamWindows);
   };
 
-  const addTranscriptMessage = (message: string) => {
-    console.log("addTranscriptMessages: " + message);
-    setTranscriptMessages((prevMessages) => [message, ...prevMessages]);
+  const addTranscriptMessage = (owner: string, message: string) => {
+    console.log("addTranscriptMessage: %s>%s", owner, message);
+    let msg = { from: owner, msg: message, processed: false };
+    setTranscriptMessages((prevMessages) => [msg, ...prevMessages]);
   };
 
   const handleUserResponse = async (response: string) => {
@@ -176,10 +180,7 @@ const Session: React.FC = () => {
       if (userResponse === "") return;
 
       // Save user's response to conversation transcript
-      let message = "You> " + userResponse;
-      addTranscriptMessage(message);
-
-      // setCancelSpeaking(false); // reset cancel speaking flag
+      addTranscriptMessage("You", userResponse);
 
       // Send user's response to bot
       let botResponse = null;
@@ -198,8 +199,7 @@ const Session: React.FC = () => {
         //   setBotResponse(botResponse.data.response); // Speak bot response
         // }
         // Save bot response to conversation transcript
-        message = "iBot> " + botResponse.data.response;
-        addTranscriptMessage(message);
+        addTranscriptMessage("iBot", botResponse.data.response);
       } catch (e: unknown) {
         let error = "";
         if (typeof e === "string") {
@@ -211,10 +211,7 @@ const Session: React.FC = () => {
         let msg =
           error + ". Check your connection and/or restart web browser. ";
         setErrorMessage(msg);
-        //alert(msg);
       }
-      // } else if (response === "cancel-speaking") {
-      //   setCancelSpeaking(true); // stop speaking
     } else {
       setUserResponse(response); // Save user's response so far
     }
@@ -254,14 +251,16 @@ const Session: React.FC = () => {
   // };
 
   return (
-    <div className="display-vertical">
+    <div className="display-vertical" style={{ marginTop: "0vh" }}>
       <div
         className="error-message"
         style={{
           backgroundColor: errorMessage !== "" ? "orange" : "#ccc",
+          padding: errorMessage !== "" ? "5px 10px 20px 10px" : "5px",
+          //visibility: errorMessage !== "" ? "visible" : "hidden",
         }}
       >
-        {errorMessage !== "" ? errorMessage : ""}
+        {errorMessage !== "" ? errorMessage : " "}
       </div>
       <div className="session-container">
         {/* <TextToSpeech
@@ -304,7 +303,7 @@ const Session: React.FC = () => {
               background: showWebcamWindow ? "#96419c" : "#803d84",
             }}
           >
-            Webcam
+            Voice
           </button>
         </div>
 
@@ -318,6 +317,7 @@ const Session: React.FC = () => {
         <WebcamRecorder
           sessionId={sessionId}
           showWebcam={showWebcamWindow}
+          //botResponse={botResponse}
           transcriptMessages={transcriptMessages}
           onUserInput={handleUserResponse}
         />
