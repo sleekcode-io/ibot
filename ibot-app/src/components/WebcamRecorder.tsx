@@ -124,7 +124,8 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
 
   const handleSendJobDescription = async () => {
     console.log("handleSendJobDescription");
-    onUserInput(jobDescription);
+    onUserInput("Here is the job description: " + jobDescription);
+    onUserInput("done-speaking");
     setJobDescription("");
   };
 
