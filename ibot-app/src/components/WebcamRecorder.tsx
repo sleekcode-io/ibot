@@ -125,8 +125,13 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
   const handleSendJobDescription = async () => {
     console.log("handleSendJobDescription");
     onUserInput("Here is the job description: " + jobDescription);
-    onUserInput("done-speaking");
+    onUserInput("done-typing");
     setJobDescription("");
+  };
+
+  const handleCloseJobDescription = async () => {
+    onUserInput("done-typing");
+    handleToggleWebcamVideo();
   };
 
   const webcamWindow = () => {
@@ -188,7 +193,7 @@ const WebcamRecorder: React.FC<WebcamRecorderProps> = ({
               />
               <div className="display-horizontal" style={{ gap: "5%" }}>
                 <button
-                  onClick={handleToggleWebcamVideo}
+                  onClick={handleCloseJobDescription}
                   // className="button"
                   // style={{
                   //   backgroundColor: "#fff",

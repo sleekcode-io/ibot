@@ -29,11 +29,14 @@ const JobForm: React.FC<JobFormProps> = ({
     // Send job data to bot
     let botResponse = null;
     try {
-      botResponse = await axios.post("http://localhost:5205/job-data", {
-        id: sessionId,
-        mode: mode,
-        jobData: jobTitle + ", " + jobDescription,
-      });
+      botResponse = await axios.post(
+        "http://localhost:5205/conversation/v1/job-data",
+        {
+          id: sessionId,
+          mode: mode,
+          jobData: jobTitle + ", " + jobDescription,
+        }
+      );
       // Clear the form after submission
       setJobTitle("");
       setJobDescription("");

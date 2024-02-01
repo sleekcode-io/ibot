@@ -4,8 +4,8 @@ mkdir ibot
 cd ibot
 npx create-react-app ibot-app --template typescript
 
-React App
-=========
+# React App
+
 mkdir ibot-app
 cd ibot-app
 npm install axios react-speech-recognition react-text-to-speech
@@ -36,8 +36,8 @@ We suggest that you begin by typing:
 cd ibot-app
 npm start
 
-Server
-======
+# Server
+
 (see Doc: https://js.langchain.com/docs/get_started/installation)
 mkdir ibot-server
 cd ibot-server
@@ -53,6 +53,20 @@ npm install @langchain/core
     cd src
     npm start
 
+Running index.ts with nodemon:
+
+    npm install --save-dev ts-node nodemon
+    nodemon index.ts
+
+or create nodemon.json file with code below and simple type nodemon to run.
+
+    {
+      "watch": ["src"],
+      "ext": "ts,json",
+      "ignore": ["src/**/*.spec.ts"],
+      "exec": "ts-node ./src/index.ts"
+    }
+
 # NOTES:
 
 1. react-speech-recognition Github recommends using pollyfills from Speechly or Microsoft
@@ -64,11 +78,10 @@ npm install @langchain/core
 3. For quality speech recognition and etc.
    https://azure.microsoft.com/en-us/products/ai-services/ai-speech/
 
-Updates
-=======
+# Updates
 
 git add/rm ....
 git commit ....
 git push origin HEAD:master
 
-
+1.

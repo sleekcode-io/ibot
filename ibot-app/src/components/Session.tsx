@@ -1,19 +1,14 @@
 // Session.tsx
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import TextToSpeech from "./TextToSpeech";
 import WebcamRecorder from "./WebcamRecorder";
-import JobForm from "./JobDescription";
 import Chat from "./Chat";
 import "../App.css";
 import "../styles/Sessions.css";
 import { TranscriptMessageProps } from "./Interfaces";
 
 const Session: React.FC = () => {
-  // const [botResponse, setBotResponse] = useState<string>("");
-  // const [language, setLanguage] = useState("en-US");
-  // const [cancelSpeaking, setCancelSpeaking] = useState<boolean>(false);
-
   const [userResponse, setUserResponse] = useState<string>("");
   const [sessionId, setSessionId] = useState<number>(-1);
   const [sessionStatus, setSessionStatus] = useState<boolean>(false);
@@ -54,7 +49,7 @@ const Session: React.FC = () => {
 
     // Cleanup function for componentWillUnmount
     return () => {
-      // DO NOT Remove the event listener here or current session will not be closed.
+      // Comment out this code or the session will not close.
       // window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }); // Empty dependency array ensures the effect runs only once (on mount) and cleans up on unmount
@@ -69,9 +64,12 @@ const Session: React.FC = () => {
     curSessionId = 0; // Set to 0 to indicate session is starting to prevent multiple start
     let response = null;
     try {
-      response = await axios.post("http://localhost:5205/start-session", {
-        content: "",
-      });
+      response = await axios.post(
+        "http://localhost:5205/conversation/v1/start",
+        {
+          content: "",
+        }
+      );
     } catch (e: unknown) {
       let error = "";
       if (typeof e === "string") {
@@ -82,16 +80,16 @@ const Session: React.FC = () => {
       console.error("startSession error: " + error);
       curSessionId = -1;
       let msg =
+        "startConversation: " +
         error +
         ". Check your Internet connection and reload web browser to restart. ";
       setErrorMessage(msg);
       //alert(msg);
       return;
     }
-    setSessionId(response.data.sessionId);
-    curSessionId = response.data.sessionId;
+    setSessionId(response.data.conversationId);
+    curSessionId = response.data.conversationId;
     setUserResponse("");
-    //setBotResponse("");
     setErrorMessage(""); // Clear error message
     setSessionStatus(true);
     console.log("startSession: STARTED (sessionId: %d)", curSessionId);
@@ -99,7 +97,7 @@ const Session: React.FC = () => {
 
   const endSession = async () => {
     // End current session
-    //console.log("Session ended %d", curSessionId);
+    console.log("Session ended %d", curSessionId);
     if (curSessionId < 0) {
       return; // there is no session open, do nothing...
     }
@@ -110,28 +108,13 @@ const Session: React.FC = () => {
     curSessionId = -1;
 
     // Will cancel ongoing speech, stop listening here ...
-    await axios.post("http://localhost:5205/end-session", {
+    await axios.post("http://localhost:5205/conversation/v1/end", {
       id: sessId,
     });
     curSessionId = -1;
     setSessionId(-1);
     setSessionStatus(false);
   };
-
-  // const handleToggleJobWindow = () => {
-  //   console.log("handleToggleJobWindow: " + showJobWindow);
-  //   if (!showJobWindow) {
-  //     // Close chat display, if it is open
-  //     if (showChatWindow) {
-  //       setChatWindow((prevShowChatWindows) => !prevShowChatWindows);
-  //     }
-  //     // Close webcam display, if it is open
-  //     if (showWebcamWindow) {
-  //       setWebcamWindow((prevShowWebcamWindows) => !prevShowWebcamWindows);
-  //     }
-  //   }
-  //   setJobWindow((prevShowJobWindow) => !prevShowJobWindow);
-  // };
 
   const handleToggleChat = () => {
     console.log("handleToggleChat: " + showChatWindow);
@@ -185,19 +168,17 @@ const Session: React.FC = () => {
       // Send user's response to bot
       let botResponse = null;
       try {
-        botResponse = await axios.post("http://localhost:5205/user-message", {
-          id: sessionId,
-          content: userResponse,
-        });
+        botResponse = await axios.post(
+          "http://localhost:5205/conversation/v1/message",
+          {
+            id: sessionId,
+            content: userResponse,
+          }
+        );
 
         // Success, process bot's response
         setUserResponse(""); // Clear user's response buffer
 
-        // TODO: Handle bot feedback as needed ...
-        // if (showWebcamWindow) {
-        //   // User is interacting with voice and webcam
-        //   setBotResponse(botResponse.data.response); // Speak bot response
-        // }
         // Save bot response to conversation transcript
         addTranscriptMessage("iBot", botResponse.data.response);
       } catch (e: unknown) {
@@ -209,7 +190,9 @@ const Session: React.FC = () => {
         }
         console.error("handleUserResponse error: " + error);
         let msg =
-          error + ". Check your connection and/or restart web browser. ";
+          "sendMessage: " +
+          error +
+          ". Check your connection and/or restart web browser. ";
         setErrorMessage(msg);
       }
     } else {
@@ -217,11 +200,19 @@ const Session: React.FC = () => {
     }
   };
 
-  // Handle language/voice change in TextToSpeech component
-  // const handleLangChanged = async (lang: string) => {
-  //   console.log("handleLangChanged: old %s new %s", language, lang);
-  //   setLanguage(lang);
-  //   //setBotResponse(""); // Clear bot's response buffer
+  // const handleToggleJobWindow = () => {
+  //   console.log("handleToggleJobWindow: " + showJobWindow);
+  //   if (!showJobWindow) {
+  //     // Close chat display, if it is open
+  //     if (showChatWindow) {
+  //       setChatWindow((prevShowChatWindows) => !prevShowChatWindows);
+  //     }
+  //     // Close webcam display, if it is open
+  //     if (showWebcamWindow) {
+  //       setWebcamWindow((prevShowWebcamWindows) => !prevShowWebcamWindows);
+  //     }
+  //   }
+  //   setJobWindow((prevShowJobWindow) => !prevShowJobWindow);
   // };
 
   // const handleFormSubmit = async (jobTitle: string, jobDescription: string) => {
@@ -263,11 +254,6 @@ const Session: React.FC = () => {
         {errorMessage !== "" ? errorMessage : " "}
       </div>
       <div className="session-container">
-        {/* <TextToSpeech
-          cancelSpeaking={false}
-          text={botResponse}
-          onLangChanged={handleLangChanged}
-        /> */}
         {/*
         <button
           className="job-toggle-button"
@@ -317,7 +303,6 @@ const Session: React.FC = () => {
         <WebcamRecorder
           sessionId={sessionId}
           showWebcam={showWebcamWindow}
-          //botResponse={botResponse}
           transcriptMessages={transcriptMessages}
           onUserInput={handleUserResponse}
         />
