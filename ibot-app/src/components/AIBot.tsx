@@ -218,6 +218,7 @@ const AIBot: React.FC<AIBotProps> = ({
                 left: "0",
                 width: "100%",
                 height: "100%",
+                visibility: showWebcamVideo ? "hidden" : "visible",
               }}
             >
               <div
@@ -226,7 +227,6 @@ const AIBot: React.FC<AIBotProps> = ({
                   height: "90%",
                   width: "88%",
                   marginLeft: "2.6vw",
-                  visibility: showWebcamVideo ? "hidden" : "visible",
                 }}
               >
                 <div className="chat-message-container">

@@ -40,6 +40,7 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
       const usableVoices = availableVoices.filter(
         (voice) => !excludedVoices.includes(voice.name)
       );
+
       setVoices(usableVoices);
 
       // Set a default voice, or you can let the user choose one
