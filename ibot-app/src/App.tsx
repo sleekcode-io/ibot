@@ -8,7 +8,8 @@ import "./styles/Sessions.css";
 const App: React.FC = () => {
   return (
     <div className="App">
-      <div className="App-title-row">
+      <div className="App-header">A I B O T</div>
+      <div className="App-title-row" style={{ marginTop: "5vh" }}>
         <img src={iBotImage} width="150px" height="150px" alt="Robot" />
         <div
           //className="display-vertical"
@@ -18,7 +19,7 @@ const App: React.FC = () => {
             marginBottom: "2vh",
           }}
         >
-          I B O T
+          A I B O T
         </div>
       </div>
       <div
@@ -26,12 +27,12 @@ const App: React.FC = () => {
         style={{
           color: "#ccc",
           fontFamily: "Poppins, sans-serif",
-          fontSize: "0.6em",
+          fontSize: "30px",
           fontWeight: "500",
           marginBottom: "2vh",
         }}
       >
-        A Conversational AI Bot for Job Interviews
+        A Conversational AI Bot
       </div>
       <div>
         <Session />

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import WebcamRecorder from "./WebcamRecorder";
+import AIBot from "./AIBot";
 import Chat from "./Chat";
 import "../App.css";
 import "../styles/Sessions.css";
@@ -12,13 +12,28 @@ const Session: React.FC = () => {
   const [userResponse, setUserResponse] = useState<string>("");
   const [sessionId, setSessionId] = useState<number>(-1);
   const [sessionStatus, setSessionStatus] = useState<boolean>(false);
-  const [showJobWindow, setJobWindow] = useState<boolean>(false);
-  const [showChatWindow, setChatWindow] = useState<boolean>(false);
-  const [showWebcamWindow, setWebcamWindow] = useState<boolean>(false);
   const [transcriptMessages, setTranscriptMessages] = useState<
     TranscriptMessageProps[]
   >([]);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [selectedRole, setSelectedRole] = useState<number>(0);
+
+  let iBotRoles: {
+    title: string;
+    id: number;
+    help: string;
+  }[] = [
+    {
+      title: "Mock (Job) Interview",
+      id: 0,
+      help: "Prepare you for your next job interview based on your job description with mock interview.",
+    },
+    {
+      title: "Practice A Language",
+      id: 1,
+      help: "Learn a language of your choice fast by practicing often with aiBot, speaking or writing.",
+    },
+  ];
 
   let curSessionId = -1;
 
@@ -29,7 +44,7 @@ const Session: React.FC = () => {
     );
     // Keep session alive at all times
     if (!sessionStatus) {
-      startSession();
+      startSession(selectedRole);
     }
   });
 
@@ -56,7 +71,7 @@ const Session: React.FC = () => {
 
   // End cleanup code ---------------------------------------------------------------------------
 
-  const startSession = async () => {
+  const startSession = async (role: number) => {
     // Start the session
     if (curSessionId >= 0) {
       return; // There is already a session open, do nothing...
@@ -67,7 +82,7 @@ const Session: React.FC = () => {
       response = await axios.post(
         "http://localhost:5205/conversation/v1/start",
         {
-          content: "",
+          roleid: role,
         }
       );
     } catch (e: unknown) {
@@ -84,7 +99,6 @@ const Session: React.FC = () => {
         error +
         ". Check your Internet connection and reload web browser to restart. ";
       setErrorMessage(msg);
-      //alert(msg);
       return;
     }
     setSessionId(response.data.conversationId);
@@ -116,39 +130,9 @@ const Session: React.FC = () => {
     setSessionStatus(false);
   };
 
-  const handleToggleChat = () => {
-    console.log("handleToggleChat: " + showChatWindow);
-    if (!showChatWindow) {
-      // Close Webcam display, if it is open
-      if (showWebcamWindow) {
-        setWebcamWindow((prevShowWebcamWindows) => !prevShowWebcamWindows);
-      }
-      // Close Job display, if it is open
-      if (showJobWindow) {
-        setJobWindow((prevShowJobWindow) => !prevShowJobWindow);
-      }
-    }
-    setChatWindow((prevShowChatWindows) => !prevShowChatWindows);
-  };
-
-  const handleToggleWebcam = () => {
-    console.log("handleToggleWebcam: " + showWebcamWindow);
-    if (!showWebcamWindow) {
-      // Close chat display, if it is open
-      if (showChatWindow) {
-        setChatWindow((prevShowChatWindows) => !prevShowChatWindows);
-      }
-      // Close Job display, if it is open
-      if (showJobWindow) {
-        setJobWindow((prevShowJobWindow) => !prevShowJobWindow);
-      }
-    }
-    setWebcamWindow((prevShowWebcamWindows) => !prevShowWebcamWindows);
-  };
-
   const addTranscriptMessage = (owner: string, message: string) => {
     console.log("addTranscriptMessage: %s>%s", owner, message);
-    let msg = { from: owner, msg: message, processed: false };
+    let msg = { from: owner, msg: message, spoken: false };
     setTranscriptMessages((prevMessages) => [msg, ...prevMessages]);
   };
 
@@ -200,52 +184,25 @@ const Session: React.FC = () => {
     }
   };
 
-  // const handleToggleJobWindow = () => {
-  //   console.log("handleToggleJobWindow: " + showJobWindow);
-  //   if (!showJobWindow) {
-  //     // Close chat display, if it is open
-  //     if (showChatWindow) {
-  //       setChatWindow((prevShowChatWindows) => !prevShowChatWindows);
-  //     }
-  //     // Close webcam display, if it is open
-  //     if (showWebcamWindow) {
-  //       setWebcamWindow((prevShowWebcamWindows) => !prevShowWebcamWindows);
-  //     }
-  //   }
-  //   setJobWindow((prevShowJobWindow) => !prevShowJobWindow);
-  // };
+  const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = parseInt(event.target.value, 10);
+    setSelectedRole(selectedValue);
+    if (selectedValue != selectedRole) {
+      // Restart session
+      endSession();
+      startSession(selectedValue);
+    }
 
-  // const handleFormSubmit = async (jobTitle: string, jobDescription: string) => {
-  //   console.log("handleFormSubmit: " + jobTitle);
-  //   if (sessionId < 0) {
-  //     return; // there is no session open, do nothing...
-  //   }
-  //   // Send job data to bot
-  //   let botResponse = null;
-  //   try {
-  //     botResponse = await axios.post("http://localhost:5205/job-data", {
-  //       id: sessionId,
-  //       content: jobTitle + ", " + jobDescription,
-  //     });
-  //   } catch (e: unknown) {
-  //     let error = "";
-  //     if (typeof e === "string") {
-  //       error = e.toUpperCase();
-  //     } else if (e instanceof Error) {
-  //       error = e.message;
-  //     }
-  //     console.error("handleUserResponse error: " + error);
-  //     let msg =
-  //       error + ". Check your connection and/or reload browser to restart. ";
-  //     setErrorMessage(msg);
-  //   }
-  // };
+    // You can perform additional actions based on the selected role if needed
+    console.log(`Selected Role: ${selectedValue}`);
+  };
 
   return (
     <div className="display-vertical" style={{ marginTop: "0vh" }}>
       <div
         className="error-message"
         style={{
+          width: "70vh",
           backgroundColor: errorMessage !== "" ? "orange" : "#ccc",
           padding: errorMessage !== "" ? "5px 10px 20px 10px" : "5px",
           //visibility: errorMessage !== "" ? "visible" : "hidden",
@@ -253,56 +210,50 @@ const Session: React.FC = () => {
       >
         {errorMessage !== "" ? errorMessage : " "}
       </div>
-      <div className="session-container">
-        {/*
-        <button
-          className="job-toggle-button"
-          onClick={handleToggleJobWindow}
-          style={{
-            background: showJobWindow ? "#96419c" : "#803d84",
-          }}
-        >
-          Job Details
-        </button>
-        <JobForm
-          sessionId={sessionId}
-          mode={"submission"}
-          showJobWindow={showJobWindow}
-          errorMessage={errorMessage}
-          onClose={handleToggleJobWindow}
-        /> */}
-
-        <div className="display-horizontal">
-          <button
-            className="toggle-button"
-            onClick={handleToggleChat}
-            style={{
-              background: showChatWindow ? "#96419c" : "#803d84",
-            }}
-          >
-            Chat
-          </button>
-          <button
-            className="toggle-button"
-            onClick={handleToggleWebcam}
-            style={{
-              background: showWebcamWindow ? "#96419c" : "#803d84",
-            }}
-          >
-            Voice
-          </button>
+      <div
+        className="display-horizontal"
+        style={{
+          width: "80vh",
+          marginTop: "2vh",
+          marginBottom: "1vh",
+        }}
+      >
+        <div style={{ fontSize: "20px", fontWeight: "500" }}>
+          What do you want to do today?
         </div>
-
-        <Chat
-          sessionStatus={sessionStatus}
-          showChat={showChatWindow}
-          chatMessages={transcriptMessages}
-          onUserInput={handleUserResponse}
-        />
-
-        <WebcamRecorder
+        <select
+          className="display-select"
+          style={
+            {
+              //borderRadius: "0px 35px 35px 0px",
+            }
+          }
+          onChange={handleRoleChange}
+          value={selectedRole}
+        >
+          {iBotRoles.map((role) => (
+            <option key={role.title} value={role.id}>
+              {role.title}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div
+        style={{
+          width: "10vx",
+          color: "#999",
+          fontSize: "18px",
+          fontWeight: "400",
+          marginTop: "1vh",
+          marginBottom: "2vh",
+          overflowWrap: "anywhere",
+        }}
+      >
+        {`${iBotRoles[selectedRole].help}`}
+      </div>
+      <div className="session-container">
+        <AIBot
           sessionId={sessionId}
-          showWebcam={showWebcamWindow}
           transcriptMessages={transcriptMessages}
           onUserInput={handleUserResponse}
         />

@@ -10,8 +10,6 @@ import { TranscriptMessageProps, ChatProps } from "./Interfaces";
 
 const Chat: React.FC<ChatProps> = ({
   sessionStatus,
-  showChat,
-  //selectedLanguage,
   chatMessages,
   onUserInput,
 }) => {
@@ -20,10 +18,8 @@ const Chat: React.FC<ChatProps> = ({
 
   // Invoked on component mount
   useEffect(() => {
-    console.log(
-      "Chat: sessionStatus " + sessionStatus + ", showChat " + showChat
-    );
-  }, [sessionStatus, showChat]);
+    console.log("Chat: sessionStatus " + sessionStatus);
+  }, [sessionStatus]);
 
   // This function is triggered when user clicks on Download Transcript button
   const handleDownloadTranscript = () => {
@@ -84,7 +80,7 @@ const Chat: React.FC<ChatProps> = ({
     if (message === null || message === undefined) {
       return;
     }
-    message.processed = true;
+
     // Display message
     if (message.from === "iBot") {
       // Bot's message
@@ -116,72 +112,73 @@ const Chat: React.FC<ChatProps> = ({
   const showChatWindow = () => {
     console.log("showChatWindow");
     return (
-      <div className="display-container">
-        <div className="chat-window">
-          <div className="chat-message-container">
-            {chatMessages.map(
-              (message: TranscriptMessageProps, index: number) => (
-                <div key={index} className="chat-message">
-                  {handleMessageDisplay(message)}
-                </div>
-              )
-            )}
-          </div>
-          <div className="input-container">
-            <input
-              type="text"
-              value={userInput}
-              onChange={handleInputChange}
-              onKeyPress={handleKeyPress}
-              className="input-text"
-              placeholder="Type your message..."
-            />
-            <button
-              className="chat-button"
-              onClick={handleSend}
-              style={{
-                backgroundColor: userInput !== "" ? "#fff" : "#d8d8d8",
-              }}
-            >
-              <div className="tooltip">
-                <img src={SendImage} alt="S" width="18px" height="18px" />
-                {userInput !== "" ? (
-                  <span className="tooltiptext">Send user input</span>
-                ) : (
-                  <span className="tooltiptext">No input data to send</span>
-                )}
+      //<div className="display-container">
+      <div className="chat-window">
+        <div className="chat-message-container">
+          {chatMessages.map(
+            (message: TranscriptMessageProps, index: number) => (
+              <div key={index} className="chat-message">
+                {handleMessageDisplay(message)}
               </div>
-            </button>
-            <button
-              className="chat-button"
-              onClick={handleDownloadTranscript}
-              style={{
-                backgroundColor: chatMessages.length ? "#fff" : "#d8d8d8",
-              }}
-            >
-              <div className="tooltip">
-                <img
-                  src={TranscriptDownloadImage}
-                  alt="D"
-                  width="18px"
-                  height="18px"
-                />
-                {chatMessages.length === 0 ? (
-                  <span className="tooltiptext">
-                    No transcript data for download
-                  </span>
-                ) : (
-                  <span className="tooltiptext">Download transcript</span>
-                )}
-              </div>
-            </button>
-          </div>
+            )
+          )}
+        </div>
+        <div className="input-container">
+          <input
+            type="text"
+            value={userInput}
+            onChange={handleInputChange}
+            onKeyPress={handleKeyPress}
+            className="input-text"
+            placeholder="Type your message..."
+          />
+          <button
+            className="chat-button"
+            onClick={handleSend}
+            style={{
+              backgroundColor: userInput !== "" ? "#fff" : "#d8d8d8",
+            }}
+          >
+            <div className="tooltip">
+              <img src={SendImage} alt="S" width="18px" height="18px" />
+              {userInput !== "" ? (
+                <span className="tooltiptext">Send user input</span>
+              ) : (
+                <span className="tooltiptext">No input data to send</span>
+              )}
+            </div>
+          </button>
+          <button
+            className="chat-button"
+            onClick={handleDownloadTranscript}
+            style={{
+              backgroundColor: chatMessages.length ? "#fff" : "#d8d8d8",
+            }}
+          >
+            <div className="tooltip">
+              <img
+                src={TranscriptDownloadImage}
+                alt="D"
+                width="18px"
+                height="18px"
+              />
+              {chatMessages.length === 0 ? (
+                <span className="tooltiptext">
+                  No transcript data for download
+                </span>
+              ) : (
+                <span className="tooltiptext">Download transcript</span>
+              )}
+            </div>
+          </button>
         </div>
       </div>
+      //</div>
     );
   };
 
   // main return
+  let showChat = false; // not in use, always disabled
   return (
     <div>
       {showChat && (

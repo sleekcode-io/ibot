@@ -3,21 +3,17 @@
 export interface TranscriptMessageProps {
   from: string;
   msg: string;
-  processed: boolean;
+  spoken: boolean;
 }
 
 export interface ChatProps {
   sessionStatus: boolean;
-  showChat: boolean;
-  //selectedLanguage: string;
   chatMessages: TranscriptMessageProps[];
   onUserInput: (text: string) => void;
 }
 
-export interface WebcamRecorderProps {
+export interface AIBotProps {
   sessionId: number;
-  showWebcam: boolean;
-  //botResponse: string;
   transcriptMessages: TranscriptMessageProps[];
   onUserInput: (text: string) => void;
 }

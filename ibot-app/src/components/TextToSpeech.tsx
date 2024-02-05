@@ -11,17 +11,39 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice>();
 
+  let excludedVoices = [
+    "Grandpa",
+    "Grandma",
+    "Princess",
+    "Albert",
+    "Bad News",
+    "Good News",
+    "Bahh",
+    "Bells",
+    "Boing",
+    "Bubbles",
+    "Cellos",
+    "Organ",
+    "Superstar",
+    "Trinoids",
+    "Whisper",
+    "Wobble",
+    "Zarvox",
+  ];
+
   useEffect(() => {
     console.log("TextToSpeech: FETCH_VOICE");
 
     const fetchVoices = () => {
       const synth = window.speechSynthesis;
       const availableVoices = synth.getVoices();
-
-      setVoices(availableVoices);
+      const usableVoices = availableVoices.filter(
+        (voice) => !excludedVoices.includes(voice.name)
+      );
+      setVoices(usableVoices);
 
       // Set a default voice, or you can let the user choose one
-      setSelectedVoice(availableVoices[0]);
+      setSelectedVoice(usableVoices[0]);
     };
 
     fetchVoices();
@@ -62,9 +84,7 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
     );
 
     if (selectedVoice) {
-      console.log(
-        "TextToSpeech: previous selected language: " + selectedVoice.lang
-      );
+      console.log("TextToSpeech: selected language: " + selectedVoice.lang);
 
       if (selectedVoice.lang.includes("en-"))
         text = "Hi, Welcome to iBot. We speak English."; // English
@@ -76,9 +96,9 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
       else if (selectedVoice.lang.includes("zh-TW"))
         // Taiwan
         text = "您好，歡迎來到 iBot。我們說中文。";
-      else if (selectedVoice.lang.includes("zh-HK"))
-        // Hongkong
-        text = "Hi, Welcome to iBot. We speak Cantonese.";
+      // else if (selectedVoice.lang.includes("zh-HK"))
+      //   // Hongkong
+      //   text = "Hi, Welcome to iBot. We speak Cantonese.";
       else if (selectedVoice.lang.includes("fr-"))
         // French
         text = "Bonjour, bienvenue sur iBot. On parle francais.";
@@ -155,6 +175,7 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
       );
 
       onLangChanged(selectedVoice.lang); // invoke callback to handle language change
+      window.speechSynthesis.cancel(); // cutting short of any ongoing speech
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.voice = selectedVoice;
       window.speechSynthesis.speak(utterance); // speak greeting message
@@ -163,7 +184,14 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
   };
 
   return (
-    <div style={{ alignItems: "center", marginTop: "5vh" }}>
+    <div
+      style={{
+        // alignItems: "center",
+        // justifyContent: "center",
+        // marginTop: "0vh",
+        marginBottom: "3vh",
+      }}
+    >
       <select
         className="display-select"
         id="voices"

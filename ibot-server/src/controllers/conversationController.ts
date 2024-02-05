@@ -11,7 +11,7 @@ import {
 } from "@langchain/core/prompts";
 import { BufferMemory } from "langchain/memory";
 
-const defaultPromptTemplate =
+const defaultPromptTemplate = [
   "You are a job interviewer, assisting someone to prepare for an upcoming job interview. \
     Your task is to simulate a realistic interview experience. Provide constructive feedback \
     on candidate's answers, offer suggestion for improvements and discuss techniques for effective \
@@ -20,8 +20,17 @@ const defaultPromptTemplate =
     question to keep the conversation going. Limit your questions and responses to maximum of 3 sentences. \
     Stay focus on the interview and avoid any unrelated personal questions. If the candidate is not sure about how \
     to answer a question, provide hint, guidance and support. Start the conversation by greeting the user \
-    and ask for detail job description. Answer any out of scope questions or questions unrelated to \
-    the job in discussion with a wonder emoji, no more.";
+    and ask for detail job description. Do not repeat the job description to the candidate, just ask questions \
+    relating to the job. Answer any out of scope questions or questions unrelated to the job in discussion \
+    with a wonder emoji, nothing more.",
+
+  "You are an expert in language, assisting student to learn and master student's selected language. Your task is to help \
+    student using the selected language correctly in terms of grammar and vocabulary. You personality is friendly, warm \
+    and helpful. Start by asking the student for a topic for discussion. You can discuss any topics raised by the \
+    student. While doing so, if you spot an incorrect use of grammar or terms or unnatural expression in the \
+    student's response, suggest a better way or term to communicate instead. Keep the conversation going by asking the \
+    student questions relating to the topic in discussion or even pro-actively change the topic.",
+];
 
 const defaultPromptTemplateWithJD =
   defaultPromptTemplate +
@@ -34,6 +43,7 @@ function startConversationSession(promptTemplate: string) {
     new MessagesPlaceholder("history"),
     HumanMessagePromptTemplate.fromTemplate("{input}"),
   ]);
+
   const conversationChain = new ConversationChain({
     memory: new BufferMemory({ returnMessages: true, memoryKey: "history" }),
     prompt: chatPrompt,
@@ -50,7 +60,7 @@ let conversations: {
   conversation: ConversationChain;
   startTime: Date;
   endTime: Date;
-  language: string;
+  languageId: string;
   voiceId: string;
   userId: string; // TODO: req.body.userId,
   jobId: string; // TODO: req.body.jobId,
@@ -78,11 +88,29 @@ const startConversation = async (req: Request, res: Response) => {
   // Setup new session and return session id
   // TODO: Validate user id, job id, job data
 
+  // Validate role id
+  if (req.body.roleid == undefined) {
+    console.log("startConversation: missing role id ");
+    res.status(400).json({ error: "startConversation: missing role id" });
+    return;
+  }
+  if (req.body.roleid < 0 || req.body.roleid >= defaultPromptTemplate.length) {
+    console.log(
+      "startConversation: missing or invalid role id: " + req.body.roleid
+    );
+    res.status(400).json({
+      error: "startConversation: invalid role id: " + req.body.roleid,
+    });
+    return;
+  }
+
   conversations[curConversationId] = {
-    conversation: startConversationSession(defaultPromptTemplate),
+    conversation: startConversationSession(
+      defaultPromptTemplate[req.body.roleid]
+    ),
     startTime: new Date(),
     endTime: new Date(),
-    language: "English",
+    languageId: "English",
     voiceId: "",
     userId: "", // TODO: req.body.userId,
     jobId: "", // TODO: req.body.jobId,
@@ -97,8 +125,9 @@ const startConversation = async (req: Request, res: Response) => {
   // }
 
   console.log(
-    "startConversation: conversation (%d) started!",
-    curConversationId
+    "startConversation: conversation (%d) started (roleid)",
+    curConversationId,
+    req.body.roleid
   );
   res.status(200).json({ conversationId: curConversationId++ });
 };
@@ -157,7 +186,7 @@ const message = async (req: Request, res: Response) => {
 };
 
 const language = async (req: Request, res: Response) => {
-  console.log("language: " + req.body.id + " : " + req.body.jobData);
+  console.log("language: " + req.body.id + " : " + req.body.id);
   //console.log(req.body.jobData);
   const conversationId = req.body.id;
   if (conversations[conversationId].conversation === undefined) {
@@ -165,12 +194,23 @@ const language = async (req: Request, res: Response) => {
     res.status(400).json({ error: "voice-data: Invalid session id." });
     return;
   }
-  if (req.body.language === "") {
-    console.log("language: no language specified?");
-    res.status(400).json({ error: "language: missing language data." });
+
+  if (req.body.voice === "") {
+    console.log("language: no voice specified?");
+    res.status(400).json({ error: "language: missing voice data." });
     return;
   }
-  conversations[conversationId].language = req.body.language;
+
+  conversations[conversationId].languageId = req.body.language;
+  conversations[conversationId].voiceId = req.body.voice;
+
+  console.log(
+    "Update conversation[%d]: language: %s voice: %s",
+    req.body.id,
+    req.body.language,
+    req.body.voice
+  );
+
   res.status(200);
 };
 
@@ -213,6 +253,8 @@ const jobData = async (req: Request, res: Response) => {
   } else {
     // Update conversation prompt
     console.log("jobData: update conversation prompt");
+
+    // Old conversation is auto-freed by garbage collector when no longer used
     conversations[conversationId].conversation = startConversationSession(
       defaultPromptTemplateWithJD + req.body.jobData
     );
