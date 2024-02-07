@@ -12,26 +12,26 @@ import userAvatar from "../images/user-avatar.png";
 import SendImage from "../images/send-message.png";
 import "../App.css";
 import "../styles/Chat.css";
-import "../styles/WebcamRecorder.css";
+import "../styles/AIBot.css";
 
 const AIBot: React.FC<AIBotProps> = ({
   sessionId,
   transcriptMessages,
   onUserInput,
 }) => {
-  const [showCaption, setShowCaption] = useState(false);
+  const [showCaption, setShowCaption] = useState<boolean>(false);
   const [captionText, setCaptionText] = useState<string>("Caption ON");
-  const [language, setLanguage] = useState("en-US");
-  const [cancelSpeaking, setCancelSpeaking] = useState<boolean>(false);
+  const [language, setLanguage] = useState<string>("en-US");
+  const [showWebcamVideo, setShowWebcamVideo] = useState<boolean>(true);
+  const [userInput, setUserInput] = useState<string>("");
   const [botResponse, setBotResponse] = useState<string>("");
-  const [showWebcamVideo, setShowWebcamVideo] = useState(true);
-  const [userInput, setUserInput] = useState("");
+  const [botSpeaking, setBotSpeaking] = useState<boolean>(false);
+  const [cancelBotSpeaking, setCancelBotSpeaking] = useState<boolean>(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
     console.log("WebcamRecorder: FETCH_MEDIA");
-    //console.log("WebcamRecorder: showWebcam:" + showWebcam);
 
     const startWebcam = async () => {
       try {
@@ -52,8 +52,9 @@ const AIBot: React.FC<AIBotProps> = ({
 
     startWebcam();
     setBotResponse(""); // Clear bot response to avoid repeat speaking of last response
-  });
+  }, []);
 
+  // Handle new bot response message for speaking and caption display.
   useEffect(() => {
     console.log(
       "WebcamRecorder: transcriptMessage: %d",
@@ -76,7 +77,7 @@ const AIBot: React.FC<AIBotProps> = ({
           setCaptionText(transcriptMessages[0].msg);
       }
     }
-  }, [transcriptMessages, showCaption]);
+  }, [transcriptMessages]);
 
   const handleToggleCaption = () => {
     console.log("handleToggleCaption");
@@ -108,9 +109,10 @@ const AIBot: React.FC<AIBotProps> = ({
     element.click();
   };
 
-  const handleCancelSpeaking = () => {
-    console.log("handleCancelSpeaking");
-    setCancelSpeaking(true);
+  // Send Cancel bot speaking event to TextToSpeech component
+  const handleCancelBotSpeaking = () => {
+    console.log("handleCancelBotSpeaking");
+    setCancelBotSpeaking(true);
     setBotResponse("");
   };
 
@@ -118,6 +120,12 @@ const AIBot: React.FC<AIBotProps> = ({
   const handleLangChanged = async (lang: string) => {
     console.log("handleLangChanged: old %s new %s", language, lang);
     setLanguage(lang);
+  };
+
+  // Bot start/stop speaking events from Text2Speech component
+  const handleBotSpeaking = async (speaking: boolean) => {
+    //console.log("handleBotSpeaking: SPEAKING " + speaking);
+    setBotSpeaking(speaking);
   };
 
   // This function does not pick up Enter key press, only text input
@@ -153,13 +161,21 @@ const AIBot: React.FC<AIBotProps> = ({
     }
   };
 
-  const handleMessageDisplay = (message: TranscriptMessageProps) => {
-    console.log("handleMessageDisplay: " + message);
-    if (message === null || message === undefined) {
+  // Display bot's and user's messages on chat window
+  const handleMessageDisplay = (
+    index: number,
+    message: TranscriptMessageProps
+  ) => {
+    console.log("handleMessageDisplay: " + index);
+    if (showWebcamVideo || message === null || message === undefined) {
       return;
     }
 
+    console.log(
+      "handleMessageDisplay: " + index + ":" + message.from + ">" + message.msg
+    );
     // Display message
+    message.chatOutput = true;
     if (message.from === "iBot") {
       // Bot's message
       return (
@@ -188,7 +204,6 @@ const AIBot: React.FC<AIBotProps> = ({
   };
 
   const webcamWindow = () => {
-    console.log("webcamWindow");
     // Set webcam window visible
     return (
       <div
@@ -233,7 +248,7 @@ const AIBot: React.FC<AIBotProps> = ({
                   {transcriptMessages.map(
                     (message: TranscriptMessageProps, index: number) => (
                       <div key={index} className="chat-message">
-                        {handleMessageDisplay(message)}
+                        {handleMessageDisplay(index, message)}
                       </div>
                     )
                   )}
@@ -280,9 +295,10 @@ const AIBot: React.FC<AIBotProps> = ({
               }}
             >
               <TextToSpeech
-                cancelSpeaking={cancelSpeaking}
+                cancelSpeaking={cancelBotSpeaking}
                 text={botResponse}
                 onLangChanged={handleLangChanged}
+                onBotSpeaking={handleBotSpeaking}
               />
               <video
                 ref={videoRef}
@@ -298,24 +314,24 @@ const AIBot: React.FC<AIBotProps> = ({
                   // label="English"
                 />
               </video>
-              <div
-                id="scroll-container"
-                className="caption-text"
-                style={{
-                  marginTop: "0vh",
-                  visibility:
-                    showCaption && showWebcamVideo ? "visible" : "hidden",
-                }}
-              >
-                <div id="scroll-text">{captionText}</div>
-              </div>
             </div>
+          </div>
+          <div
+            className="caption-container"
+            //id="scroll-container"
+            //className={`caption-text ${botSpeaking ? "scroll-text" : ""}`}
+            style={{
+              marginTop: "-5.5vh",
+              visibility: showCaption && showWebcamVideo ? "visible" : "hidden",
+            }}
+          >
+            <div id="scroll-text">{captionText}</div>
           </div>
           <div
             className="display-horizontal"
             style={{
               //position: "absolute",
-              marginTop: "-3vh",
+              marginTop: "3vh",
               marginLeft: "2vw",
               marginBottom: "5vh",
               gap: "2%",
@@ -329,7 +345,6 @@ const AIBot: React.FC<AIBotProps> = ({
                 padding: "12px 0px 0px 0px",
                 opacity: transcriptMessages.length ? 1 : 0.6,
                 cursor: transcriptMessages.length ? "pointer" : "not-allowed",
-                //visibility: showWebcamVideo ? "visible" : "hidden",
               }}
             >
               <div className="tooltip">
@@ -352,7 +367,6 @@ const AIBot: React.FC<AIBotProps> = ({
                 padding: "12px 0px 0px 0px",
                 opacity: showWebcamVideo ? 1 : 0.6,
                 cursor: showWebcamVideo ? "pointer" : "not-allowed",
-                //visibility: showWebcamVideo ? "visible" : "hidden",
               }}
             >
               <div className="tooltip">
@@ -367,14 +381,13 @@ const AIBot: React.FC<AIBotProps> = ({
               showMicrophoneButton={true}
             />
             <button
-              onClick={handleCancelSpeaking}
+              onClick={handleCancelBotSpeaking}
               style={{
                 backgroundColor: "transparent",
                 border: "none",
                 padding: "12px 0px 0px 0px",
                 opacity: botResponse !== "" ? 1 : 0.6,
                 cursor: botResponse !== "" ? "pointer" : "not-allowed",
-                //visibility: showWebcamVideo ? "visible" : "hidden",
               }}
             >
               <div className="tooltip">
@@ -393,7 +406,6 @@ const AIBot: React.FC<AIBotProps> = ({
                 backgroundColor: "transparent",
                 border: "none",
                 padding: "12px 0px 0px 0px",
-                //visibility: showWebcamVideo ? "visible" : "hidden",
               }}
             >
               <div className="tooltip">

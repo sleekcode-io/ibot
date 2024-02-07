@@ -136,7 +136,10 @@ const endConversation = async (req: Request, res: Response) => {
   console.log("endConversation: ", req.body.id);
   // Validate session id
   const conversationId = req.body.id;
-  if (conversations[conversationId] === undefined) {
+  if (
+    conversations[conversationId] == null ||
+    conversations[conversationId] === undefined
+  ) {
     console.log("endConversation: session %d does not exist", conversationId);
     res.status(404).json({ error: "endConversation: conversation not found." });
     return;
@@ -147,6 +150,9 @@ const endConversation = async (req: Request, res: Response) => {
   conversations[conversationId].comments = req.body?.comments;
   // TODO: save session to db, free resources here ...
 
+  // Delete will set this entry to null. To remove this entry from array and delete object,
+  // Use splice(conversationId, 1). Since we use rolling index, we want to keep this
+  // entry in the array in place, but discarded (set to null).
   delete conversations[conversationId];
 
   res.status(200);
@@ -159,7 +165,10 @@ const message = async (req: Request, res: Response) => {
 
   // Validate session id
   const conversationId = req.body.id;
-  if (conversations[conversationId].conversation === undefined) {
+  if (
+    conversations[conversationId] == null ||
+    conversations[conversationId].conversation === undefined
+  ) {
     console.log("message: conversation %d does not exist", req.body.id);
     res.status(400).json({ error: "Invalid conversation id." });
     return;
@@ -189,7 +198,10 @@ const language = async (req: Request, res: Response) => {
   console.log("language: " + req.body.id + " : " + req.body.id);
   //console.log(req.body.jobData);
   const conversationId = req.body.id;
-  if (conversations[conversationId].conversation === undefined) {
+  if (
+    conversations[conversationId] == null ||
+    conversations[conversationId].conversation === undefined
+  ) {
     console.log("language: conversation %d does not exist", req.body.id);
     res.status(400).json({ error: "voice-data: Invalid session id." });
     return;
@@ -225,7 +237,10 @@ const jobData = async (req: Request, res: Response) => {
   );
 
   const conversationId = req.body.id;
-  if (conversations[conversationId].conversation === undefined) {
+  if (
+    conversations[conversationId] == null ||
+    conversations[conversationId].conversation === undefined
+  ) {
     console.log("jobData: session %d does not exist", req.body.id);
     res.status(400).json({ error: "jobData: Invalid session id." });
     return;

@@ -9,7 +9,7 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <div className="App-header">A I B O T</div>
-      <div className="App-title-row" style={{ marginTop: "5vh" }}>
+      <div className="App-title-row" style={{ marginTop: "10vh" }}>
         <img src={iBotImage} width="150px" height="150px" alt="Robot" />
         <div
           //className="display-vertical"

@@ -1,9 +1,11 @@
 // Component interfaces
 
 export interface TranscriptMessageProps {
-  from: string;
-  msg: string;
-  spoken: boolean;
+  timestamp: string;
+  from: string; // owner
+  msg: string; // message content
+  spoken: boolean; // has spoken
+  chatOutput: boolean; // has output to chat screen
 }
 
 export interface ChatProps {
@@ -22,6 +24,7 @@ export interface TextToSpeechProps {
   cancelSpeaking: boolean;
   text: string;
   onLangChanged: (text: string) => void;
+  onBotSpeaking?: (speaking: boolean) => void;
 }
 
 export interface JobFormProps {

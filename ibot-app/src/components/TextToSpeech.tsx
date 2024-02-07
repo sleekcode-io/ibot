@@ -7,33 +7,32 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
   cancelSpeaking,
   text,
   onLangChanged,
+  onBotSpeaking,
 }) => {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice>();
 
-  let excludedVoices = [
-    "Grandpa",
-    "Grandma",
-    "Princess",
-    "Albert",
-    "Bad News",
-    "Good News",
-    "Bahh",
-    "Bells",
-    "Boing",
-    "Bubbles",
-    "Cellos",
-    "Organ",
-    "Superstar",
-    "Trinoids",
-    "Whisper",
-    "Wobble",
-    "Zarvox",
-  ];
-
   useEffect(() => {
     console.log("TextToSpeech: FETCH_VOICE");
-
+    let excludedVoices = [
+      "Grandpa",
+      "Grandma",
+      "Princess",
+      "Albert",
+      "Bad News",
+      "Good News",
+      "Bahh",
+      "Bells",
+      "Boing",
+      "Bubbles",
+      "Cellos",
+      "Organ",
+      "Superstar",
+      "Trinoids",
+      "Whisper",
+      "Wobble",
+      "Zarvox",
+    ];
     const fetchVoices = () => {
       const synth = window.speechSynthesis;
       const availableVoices = synth.getVoices();
@@ -54,7 +53,6 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
     return () => {
       window.speechSynthesis.removeEventListener("voiceschanged", fetchVoices);
     };
-    //}, [sessionStatus]);
   }, []); // Empty dependency array ensures the effect runs only once (on mount) and cleans up on unmount
 
   // Handle bot's and user's response speech
@@ -65,7 +63,23 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
       // Do this only when session is active and a voice is selected
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.voice = selectedVoice;
+      // utterance.addEventListener("start", () => {
+      //   console.log("TextToSpeech: SPEAKING_START");
+      //   if (onBotSpeaking) {
+      //     onBotSpeaking(true);
+      //   }
+      // });
+
+      // utterance.addEventListener("end", () => {
+      //   console.log("TextToSpeech: SPEAKING_END");
+      //   if (onBotSpeaking) {
+      //     onBotSpeaking(false);
+      //   }
+      // });
       window.speechSynthesis.speak(utterance);
+      // return () => {
+      //   //window.speechSynthesis.cancel();
+      // };
     }
   }, [text, selectedVoice]);
 
@@ -185,25 +199,30 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
   };
 
   return (
-    <div
-      style={{
-        // alignItems: "center",
-        // justifyContent: "center",
-        // marginTop: "0vh",
-        marginBottom: "3vh",
-      }}
-    >
-      <select
-        className="display-select"
-        id="voices"
-        onChange={handleVoiceChange}
+    <div>
+      <div
+        style={{
+          // alignItems: "center",
+          // justifyContent: "center",
+          // marginTop: "0vh",
+          marginBottom: "3vh",
+        }}
       >
-        {voices.map((voice) => (
-          <option key={voice.name} value={voice.name}>
-            {`${voice.name} - ${voice.lang}`}
-          </option>
-        ))}
-      </select>
+        <select
+          className="display-select"
+          id="voices"
+          onChange={handleVoiceChange}
+        >
+          {voices.map((voice) => (
+            <option key={voice.name} value={voice.name}>
+              {`${voice.name} - ${voice.lang}`}
+            </option>
+          ))}
+        </select>
+      </div>
+      {/* <div className={`caption-box ${isSpeaking ? "scroll-text" : ""}`}>
+        {text}
+      </div> */}
     </div>
   );
 };

@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import AIBot from "./AIBot";
-import Chat from "./Chat";
 import "../App.css";
 import "../styles/Sessions.css";
 import { TranscriptMessageProps } from "./Interfaces";
@@ -31,7 +30,7 @@ const Session: React.FC = () => {
     {
       title: "Practice A Language",
       id: 1,
-      help: "Learn a language of your choice fast by practicing often with aiBot, speaking or writing.",
+      help: "Learn a language of your choice fast by practicing conversation with aiBot, speaking or writing.",
     },
   ];
 
@@ -131,8 +130,22 @@ const Session: React.FC = () => {
   };
 
   const addTranscriptMessage = (owner: string, message: string) => {
+    const getTimestamp = () => {
+      const pad = (n: number, s = 2) => `${new Array(s).fill(0)}${n}`.slice(-s);
+      const d = new Date();
+
+      return `${pad(d.getFullYear(), 4)}-${pad(d.getMonth() + 1)}-${pad(
+        d.getDate()
+      )} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    };
     console.log("addTranscriptMessage: %s>%s", owner, message);
-    let msg = { from: owner, msg: message, spoken: false };
+    let msg = {
+      timestamp: getTimestamp() + "\n",
+      from: owner,
+      msg: message,
+      spoken: false,
+      chatOutput: false,
+    };
     setTranscriptMessages((prevMessages) => [msg, ...prevMessages]);
   };
 
@@ -187,7 +200,7 @@ const Session: React.FC = () => {
   const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = parseInt(event.target.value, 10);
     setSelectedRole(selectedValue);
-    if (selectedValue != selectedRole) {
+    if (selectedValue !== selectedRole) {
       // Restart session
       endSession();
       startSession(selectedValue);
