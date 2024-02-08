@@ -15,10 +15,10 @@
 .bot-message-container {
   display: flex;
   justify-content: flex-start;
-  margin-left: 10px;
-  margin-right: 10px;
+  margin-left: 1vx;
+  margin-right: 1vx;
   align-items: top;
-  margin-bottom: 10px;
+  margin-bottom: 2vh;
 }
 
 .bot-avatar {
@@ -30,7 +30,8 @@
 .bot-message {
   display: flex;
   margin-top: 2vh;
-  margin-right: 60px;
+  margin-left: -10px;
+  margin-right: 50px; /* margin at the far end of bot message */
   padding: 8px 8px;
   border: none;
   border-radius: 0px 15px 15px 15px;
@@ -39,13 +40,23 @@
   color: #fff;
 }
 
+.bot-timestamp-message {
+  display: flex;
+  margin-left: 50px;
+  margin-bottom: -1.5vh;
+  border: none;
+  font-size: 12px;
+  justify-content: flex-start;
+  color: #bbb;
+}
+
 .user-message-container {
   display: flex;
   justify-content: flex-end;
-  margin-left: 10px;
-  margin-right: 10px;
+  margin-left: 1vx;
+  margin-right: 1vx;
   align-items: top;
-  margin-bottom: 10px;
+  margin-bottom: 2vh;
 }
 
 .user-avatar {
@@ -57,7 +68,8 @@
 .user-message {
   display: flex;
   margin-top: 2vh;
-  margin-left: 60px;
+  margin-right: -10px;
+  margin-left: 50px; /* margin at the far end of user message */
   padding: 8px 8px;
   border: none;
   border-radius: 15px 0px 15px 15px;
@@ -66,16 +78,23 @@
   color: #fff;
 }
 
-.user-message-timestamp {
+.user-timestamp-message {
   display: flex;
-  margin-top: 2vh;
-  margin-left: 60px;
-  /*padding: 8px 8px;
+  margin-right: 50px;
+  margin-bottom: -1.5vh;
   border: none;
-  border-radius: 15px 0px 15px 15px;
-  background-color: #7a69f5;*/
-  justify-content: flex-start;
-  color: #aaa;
+  font-size: 12px;
+  justify-content: flex-end;
+  color: #bbb;
+}
+
+.system-message {
+  display: flex;
+  margin-top: 1vh;
+  margin-bottom: 1vh;
+  border: none;
+  justify-content: center;
+  color: #bbb;
 }
 
 /* .chat-container {

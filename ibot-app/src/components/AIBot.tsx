@@ -31,7 +31,7 @@ const AIBot: React.FC<AIBotProps> = ({
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
-    console.log("WebcamRecorder: FETCH_MEDIA");
+    console.log("AIBot: FETCH_MEDIA");
 
     const startWebcam = async () => {
       try {
@@ -46,7 +46,7 @@ const AIBot: React.FC<AIBotProps> = ({
           videoRef.current.srcObject = stream;
         }
       } catch (error) {
-        console.error("Error accessing webcam:", error);
+        console.error("AIBot: Error accessing webcam:", error);
       }
     };
 
@@ -56,13 +56,10 @@ const AIBot: React.FC<AIBotProps> = ({
 
   // Handle new bot response message for speaking and caption display.
   useEffect(() => {
-    console.log(
-      "WebcamRecorder: transcriptMessage: %d",
-      transcriptMessages.length
-    );
+    console.log("AIBot: transcriptMessage: %d", transcriptMessages.length);
 
     if (transcriptMessages.length > 0) {
-      console.log("WebcamRecorder: spoken: " + transcriptMessages[0].spoken);
+      console.log("AIBot: spoken: " + transcriptMessages[0].spoken);
       if (
         transcriptMessages[0].from === "iBot" &&
         transcriptMessages[0].spoken === false
@@ -72,7 +69,7 @@ const AIBot: React.FC<AIBotProps> = ({
         transcriptMessages[0].spoken = true;
       }
       if (showCaption) {
-        console.log("transcriptMessage:" + transcriptMessages[0].msg);
+        console.log("AIBot: transcriptMessage:" + transcriptMessages[0].msg);
         if (transcriptMessages[0].from === "iBot")
           setCaptionText(transcriptMessages[0].msg);
       }
@@ -80,17 +77,17 @@ const AIBot: React.FC<AIBotProps> = ({
   }, [transcriptMessages]);
 
   const handleToggleCaption = () => {
-    console.log("handleToggleCaption");
+    console.log("AIBot->handleToggleCaption");
     setShowCaption((prevShowCaption) => !prevShowCaption);
   };
 
   const handleToggleWebcamVideo = () => {
-    console.log("handleToggleWebcamVideo");
+    console.log("AIBot->handleToggleWebcamVideo");
     setShowWebcamVideo((prevShowWebcamVideo) => !prevShowWebcamVideo);
   };
 
   const handleDownloadTranscript = () => {
-    console.log("handleDownloadTranscript");
+    console.log("AIBot->handleDownloadTranscript");
     if (!transcriptMessages.length) {
       // No transcript available to download
       return;
@@ -111,14 +108,14 @@ const AIBot: React.FC<AIBotProps> = ({
 
   // Send Cancel bot speaking event to TextToSpeech component
   const handleCancelBotSpeaking = () => {
-    console.log("handleCancelBotSpeaking");
+    console.log("AIBot->handleCancelBotSpeaking");
     setCancelBotSpeaking(true);
     setBotResponse("");
   };
 
   // Handle language/voice change in TextToSpeech component
   const handleLangChanged = async (lang: string) => {
-    console.log("handleLangChanged: old %s new %s", language, lang);
+    console.log("AIBot->handleLangChanged: old %s new %s", language, lang);
     setLanguage(lang);
   };
 
@@ -130,7 +127,7 @@ const AIBot: React.FC<AIBotProps> = ({
 
   // This function does not pick up Enter key press, only text input
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("handleInputChange: " + e.target.value);
+    console.log("AIBot->handleInputChange: " + e.target.value);
 
     // pick up user's kb input here ...
     setUserInput(e.target.value);
@@ -139,7 +136,7 @@ const AIBot: React.FC<AIBotProps> = ({
 
   // This function picks up Enter key press as well as text input (skipped here)
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    console.log("handleKeyPress: " + e.key);
+    console.log("AIBot->handleKeyPress: " + e.key);
     if (e.key === "Enter") {
       // User pressed the Enter key
       if (userInput.trim() !== "") {
@@ -152,7 +149,7 @@ const AIBot: React.FC<AIBotProps> = ({
   };
 
   const handleSend = () => {
-    console.log("handleSend");
+    console.log("AIBot->handleSend");
     if (userInput.trim() !== "") {
       // Send user input to bot for processing and responding
       // Also, clear the input field
@@ -166,45 +163,73 @@ const AIBot: React.FC<AIBotProps> = ({
     index: number,
     message: TranscriptMessageProps
   ) => {
-    console.log("handleMessageDisplay: " + index);
+    console.log("AIBot->handleMessageDisplay: " + index);
     if (showWebcamVideo || message === null || message === undefined) {
       return;
     }
 
     console.log(
-      "handleMessageDisplay: " + index + ":" + message.from + ">" + message.msg
+      "AIBot->handleMessageDisplay: " +
+        index +
+        ":" +
+        message.from +
+        ">" +
+        message.msg
     );
     // Display message
     message.chatOutput = true;
+
+    console.log("timeLater: " + message.timeDelta);
+    let hours = Math.floor(message.timeDelta / 3600);
+    let minutes = Math.floor(message.timeDelta / 60) - hours * 60;
+    let seconds = Math.floor(message.timeDelta - (hours * 3600 + minutes * 60));
+
+    let laterMessage =
+      (hours ? hours + "h " : "") +
+      (minutes ? minutes + "m " : "") +
+      seconds +
+      "s later ...";
+
     if (message.from === "iBot") {
       // Bot's message
       return (
-        <div className="bot-message-container">
-          <div className="bot-avatar">
-            <img src={iBotAvatar} alt="iBot" width="50px" height="50px" />
+        <div>
+          <div className="bot-timestamp-message">{laterMessage}</div>
+          <div className="bot-message-container">
+            <div className="bot-avatar">
+              <img src={iBotAvatar} alt="iBot" width="50px" height="50px" />
+            </div>
+            <div className="bot-message">{message.msg}</div>
           </div>
-          <div className="bot-message">{message.msg}</div>
         </div>
       );
     } else if (message.from === "You") {
       return (
-        <div className="user-message-container">
-          <div className="user-message">{message.msg}</div>
-          <div className="user-avatar">
-            <img src={userAvatar} alt="iBot" width="40px" height="40px" />
+        <div>
+          <div className="user-timestamp-message">{laterMessage}</div>
+          <div className="user-message-container">
+            <div className="user-message">{message.msg}</div>
+            <div className="user-avatar">
+              <img src={userAvatar} alt="iBot" width="40px" height="40px" />
+            </div>
           </div>
         </div>
       );
+    } else if (message.from === "System") {
+      return <div className="system-message">{message.msg}</div>;
     } else {
       console.log(
-        "handleMessageDisplay: Invalid message source: " + message.from
+        "AIBot->handleMessageDisplay: Invalid message source: " + message.from
       );
-      return;
     }
   };
 
+  // TODO: This message list is re-rendered on every user input.
+  // Need to check if there is change in message list to render again.
+  // Also, restructure chat-message-container to render only the new message
+  // instead of the whole list.
+  //
   const webcamWindow = () => {
-    // Set webcam window visible
     return (
       <div
         className="display-container"
@@ -287,7 +312,6 @@ const AIBot: React.FC<AIBotProps> = ({
             <div
               className="display-vertical"
               style={{
-                //position: "absolute",
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
@@ -300,6 +324,7 @@ const AIBot: React.FC<AIBotProps> = ({
                 onLangChanged={handleLangChanged}
                 onBotSpeaking={handleBotSpeaking}
               />
+
               <video
                 ref={videoRef}
                 autoPlay
@@ -318,8 +343,6 @@ const AIBot: React.FC<AIBotProps> = ({
           </div>
           <div
             className="caption-container"
-            //id="scroll-container"
-            //className={`caption-text ${botSpeaking ? "scroll-text" : ""}`}
             style={{
               marginTop: "-5.5vh",
               visibility: showCaption && showWebcamVideo ? "visible" : "hidden",
@@ -330,7 +353,6 @@ const AIBot: React.FC<AIBotProps> = ({
           <div
             className="display-horizontal"
             style={{
-              //position: "absolute",
               marginTop: "3vh",
               marginLeft: "2vw",
               marginBottom: "5vh",

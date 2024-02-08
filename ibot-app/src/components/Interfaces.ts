@@ -1,8 +1,9 @@
 // Component interfaces
 
 export interface TranscriptMessageProps {
-  timestamp: string;
-  from: string; // owner
+  timestamp: number;
+  timeDelta: number; // different in seconds between messages
+  from: string; // user, bot, system
   msg: string; // message content
   spoken: boolean; // has spoken
   chatOutput: boolean; // has output to chat screen

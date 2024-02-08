@@ -23,3 +23,13 @@
   background-position-x: calc(100% - 30px);
   background-position-y: 20px; */
 }
+
+display-select-help {
+  width: "10vx";
+  color: "#999";
+  font-size: "16px";
+  font-weight: "600";
+  margin-top: "1vh";
+  margin-bottom: "2vh";
+  overflow-wrap: "anywhere";
+}

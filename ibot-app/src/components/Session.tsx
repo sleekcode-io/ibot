@@ -7,6 +7,26 @@ import "../App.css";
 import "../styles/Sessions.css";
 import { TranscriptMessageProps } from "./Interfaces";
 
+// Global variables
+let curSessionId = -1;
+let lastMessageTimestamp = 0;
+let iBotRoles: {
+  title: string;
+  id: number;
+  help: string;
+}[] = [
+  {
+    title: "Mock (Job) Interview",
+    id: 0,
+    help: "Mock interview to prepare you for your next job interview based on your provided job description.",
+  },
+  {
+    title: "Practice A Language",
+    id: 1,
+    help: "Learn language FAST! Practice a language of your choice with bot conversation, speaking or writing.",
+  },
+];
+
 const Session: React.FC = () => {
   const [userResponse, setUserResponse] = useState<string>("");
   const [sessionId, setSessionId] = useState<number>(-1);
@@ -17,25 +37,6 @@ const Session: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [selectedRole, setSelectedRole] = useState<number>(0);
 
-  let iBotRoles: {
-    title: string;
-    id: number;
-    help: string;
-  }[] = [
-    {
-      title: "Mock (Job) Interview",
-      id: 0,
-      help: "Prepare you for your next job interview based on your job description with mock interview.",
-    },
-    {
-      title: "Practice A Language",
-      id: 1,
-      help: "Learn a language of your choice fast by practicing conversation with aiBot, speaking or writing.",
-    },
-  ];
-
-  let curSessionId = -1;
-
   // Invoked on component mount
   useEffect(() => {
     console.log(
@@ -45,7 +46,7 @@ const Session: React.FC = () => {
     if (!sessionStatus) {
       startSession(selectedRole);
     }
-  });
+  }, [sessionStatus, sessionId]);
 
   // Cleanup hooks when user closes tab or browser or navigate away. ---------
   useEffect(() => {
@@ -66,9 +67,17 @@ const Session: React.FC = () => {
       // Comment out this code or the session will not close.
       // window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }); // Empty dependency array ensures the effect runs only once (on mount) and cleans up on unmount
+  }, []); // Empty dependency array ensures the effect runs only once (on mount) and cleans up on unmount
 
   // End cleanup code ---------------------------------------------------------------------------
+  const getTimestamp = () => {
+    const pad = (n: number, s = 2) => `${new Array(s).fill(0)}${n}`.slice(-s);
+    const d = new Date();
+
+    return `${pad(d.getFullYear(), 4)}-${pad(d.getMonth() + 1)}-${pad(
+      d.getDate()
+    )} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  };
 
   const startSession = async (role: number) => {
     // Start the session
@@ -94,10 +103,10 @@ const Session: React.FC = () => {
       console.error("startSession error: " + error);
       curSessionId = -1;
       let msg =
-        "startConversation: " +
         error +
-        ". Check your Internet connection and reload web browser to restart. ";
-      setErrorMessage(msg);
+        ". Check your Internet connection and reload web browser to try again. ";
+      //setErrorMessage(msg);
+      alert(msg);
       return;
     }
     setSessionId(response.data.conversationId);
@@ -105,16 +114,23 @@ const Session: React.FC = () => {
     setUserResponse("");
     setErrorMessage(""); // Clear error message
     setSessionStatus(true);
-    console.log("startSession: STARTED (sessionId: %d)", curSessionId);
+    addTranscriptMessage(
+      "System",
+      "Session " +
+        response.data.conversationId +
+        " started at " +
+        getTimestamp()
+    );
+    console.log("Session->start: STARTED (sessionId: %d)", curSessionId);
   };
 
   const endSession = async () => {
     // End current session
-    console.log("Session ended %d", curSessionId);
+    console.log("Session->end: %d", curSessionId);
     if (curSessionId < 0) {
       return; // there is no session open, do nothing...
     }
-    console.log("endSession: ENDED session %d", curSessionId);
+    console.log("Session->end: ENDED session %d", curSessionId);
     setUserResponse("");
     //setBotResponse("");
     let sessId = curSessionId;
@@ -130,27 +146,38 @@ const Session: React.FC = () => {
   };
 
   const addTranscriptMessage = (owner: string, message: string) => {
-    const getTimestamp = () => {
-      const pad = (n: number, s = 2) => `${new Array(s).fill(0)}${n}`.slice(-s);
-      const d = new Date();
-
-      return `${pad(d.getFullYear(), 4)}-${pad(d.getMonth() + 1)}-${pad(
-        d.getDate()
-      )} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-    };
-    console.log("addTranscriptMessage: %s>%s", owner, message);
+    //console.log("addTranscriptMessage: %s>%s", owner, message);
     let msg = {
-      timestamp: getTimestamp() + "\n",
+      timestamp: Math.round(Date.now() / 1000),
+      timeDelta: 0,
       from: owner,
       msg: message,
       spoken: false,
       chatOutput: false,
     };
+    msg.timeDelta = lastMessageTimestamp
+      ? msg.timestamp - lastMessageTimestamp
+      : 0;
+    console.log(
+      ">>> Session->addTranscriptMessage: (%d-%d) %d:%s>%s",
+      msg.timestamp,
+      lastMessageTimestamp,
+      msg.timeDelta,
+      owner,
+      message
+    );
+    lastMessageTimestamp = msg.timestamp;
+    console.log(
+      ">>> Session->addTranscriptMessage: (%d-%d)",
+      msg.timestamp,
+      lastMessageTimestamp
+    );
+
     setTranscriptMessages((prevMessages) => [msg, ...prevMessages]);
   };
 
   const handleUserResponse = async (response: string) => {
-    console.log("handleUserResponse: " + response);
+    console.log("Session->handleUserResponse: " + response);
     if (sessionId < 0) {
       return; // there is no session open, do nothing...
     } else if (response === "done-speaking" || response === "done-typing") {
@@ -185,12 +212,11 @@ const Session: React.FC = () => {
         } else if (e instanceof Error) {
           error = e.message;
         }
-        console.error("handleUserResponse error: " + error);
+        console.error("Session->handleUserResponse error: " + error);
         let msg =
-          "sendMessage: " +
-          error +
-          ". Check your connection and/or restart web browser. ";
-        setErrorMessage(msg);
+          error + ". Check your connection and/or restart web browser. ";
+        alert(msg);
+        //setErrorMessage(msg);
       }
     } else {
       setUserResponse(response); // Save user's response so far
@@ -207,7 +233,7 @@ const Session: React.FC = () => {
     }
 
     // You can perform additional actions based on the selected role if needed
-    console.log(`Selected Role: ${selectedValue}`);
+    console.log(`Session->Selected Role: ${selectedValue}`);
   };
 
   return (
@@ -236,11 +262,6 @@ const Session: React.FC = () => {
         </div>
         <select
           className="display-select"
-          style={
-            {
-              //borderRadius: "0px 35px 35px 0px",
-            }
-          }
           onChange={handleRoleChange}
           value={selectedRole}
         >
@@ -252,10 +273,11 @@ const Session: React.FC = () => {
         </select>
       </div>
       <div
+        //className="display-select-help"
         style={{
           width: "10vx",
           color: "#999",
-          fontSize: "18px",
+          fontSize: "16px",
           fontWeight: "400",
           marginTop: "1vh",
           marginBottom: "2vh",

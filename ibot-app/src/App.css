@@ -106,6 +106,7 @@ h1 {
   font-weight: 400;
   resize: both; /* Allow both horizontal/veritcal resizing */
   overflow-y: auto; /* Enable scrolling if the content exceeds the box size */
+  overflow-x: hidden;
 }
 
 /*
