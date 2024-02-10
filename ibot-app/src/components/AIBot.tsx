@@ -1,5 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition";
+
 import TranscriptDownloadImage from "../images/download-file.png";
+import TranscriptDownloadImage1 from "../images/transcript-download.png";
 import CaptionImage from "../images/cc.png";
 import CancelSpeakingImage from "../images/silent-blue-1.png";
 import VideoImage from "../images/video-camera.png";
@@ -9,7 +14,7 @@ import TextToSpeech from "./TextToSpeech";
 import { AIBotProps, TranscriptMessageProps } from "./Interfaces";
 import iBotAvatar from "../images/ibotai.png";
 import userAvatar from "../images/user-avatar.png";
-import SendImage from "../images/send-message.png";
+import SendImage from "../images/send.png";
 import "../App.css";
 import "../styles/Chat.css";
 import "../styles/AIBot.css";
@@ -27,6 +32,14 @@ const AIBot: React.FC<AIBotProps> = ({
   const [botResponse, setBotResponse] = useState<string>("");
   const [botSpeaking, setBotSpeaking] = useState<boolean>(false);
   const [cancelBotSpeaking, setCancelBotSpeaking] = useState<boolean>(false);
+
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+    isMicrophoneAvailable,
+  } = useSpeechRecognition();
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -49,8 +62,14 @@ const AIBot: React.FC<AIBotProps> = ({
         console.error("AIBot: Error accessing webcam:", error);
       }
     };
+    // If speechRecognition is support, start webcam for full video/voice/chat support
+    if (browserSupportsSpeechRecognition) startWebcam();
+    else {
+      alert(
+        "Browser does not support speech recognition. Continue with Chat conversation only. Try Chrome or Safari web browser for voice conversation."
+      );
+    }
 
-    startWebcam();
     setBotResponse(""); // Clear bot response to avoid repeat speaking of last response
   }, []);
 
@@ -450,7 +469,120 @@ const AIBot: React.FC<AIBotProps> = ({
     );
   };
 
-  return <div>{webcamWindow()}</div>;
+  const chatWindow = () => {
+    return (
+      <div
+        className="display-container"
+        style={{
+          backgroundColor: "#96419c",
+        }}
+      >
+        <div className="display-vertical">
+          <div
+            className="wrapper"
+            style={{
+              position: "relative",
+              width: "100%",
+              height: "100%",
+              paddingTop: "2vh",
+              paddingBottom: "2vh",
+              paddingLeft: "2vw",
+              paddingRight: "2vw",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                top: "0",
+                left: "0",
+                width: "100%",
+                height: "100%",
+                alignContent: "center",
+              }}
+            >
+              <div
+                className="chat-window"
+                style={{
+                  height: "90%",
+                  width: "88%",
+                  alignItems: "center",
+                  marginLeft: "3vw",
+                }}
+              >
+                <div className="chat-message-container">
+                  {transcriptMessages.map(
+                    (message: TranscriptMessageProps, index: number) => (
+                      <div key={index} className="chat-message">
+                        {handleMessageDisplay(index, message)}
+                      </div>
+                    )
+                  )}
+                </div>
+                <div className="input-container">
+                  <input
+                    type="text"
+                    value={userInput}
+                    onChange={handleInputChange}
+                    onKeyPress={handleKeyPress}
+                    className="input-text"
+                    placeholder="Type your message..."
+                  />
+                  <button
+                    onClick={handleSend}
+                    style={{
+                      backgroundColor: "transparent",
+                      justifyItems: "top",
+                      border: "none",
+                      opacity: userInput !== "" ? 1 : 0.6,
+                      cursor: userInput !== "" ? "pointer" : "not-allowed",
+                    }}
+                  >
+                    <div className="tooltip">
+                      <img src={SendImage} alt="S" width="38px" height="38px" />
+                      {userInput !== "" ? (
+                        <span className="tooltiptext">Send user input</span>
+                      ) : (
+                        <span className="tooltiptext">
+                          No input data to send
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                  <button
+                    onClick={handleDownloadTranscript}
+                    style={{
+                      backgroundColor: "transparent",
+                      border: "none",
+                      justifyItems: "top",
+                      opacity: transcriptMessages.length > 0 ? 1 : 0.6,
+                      cursor: transcriptMessages.length
+                        ? "pointer"
+                        : "not-allowed",
+                    }}
+                  >
+                    <div className="tooltip">
+                      <img
+                        src={TranscriptDownloadImage}
+                        alt="D"
+                        width="40px"
+                        height="40px"
+                      />
+                      <span className="tooltiptext">
+                        Download conversation transcript
+                      </span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  if (browserSupportsSpeechRecognition) return <div>{webcamWindow()}</div>;
+  else return <div>{chatWindow()}</div>;
 };
 
 export default AIBot;

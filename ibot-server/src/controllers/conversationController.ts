@@ -11,7 +11,14 @@ import {
 } from "@langchain/core/prompts";
 import { BufferMemory } from "langchain/memory";
 
+const botRoles = ["translator", "job interviewer", "language practitioner"];
+
 const defaultPromptTemplate = [
+  "You are a translator, helping users to translate text to a language of which code is given \
+  by the user. Simply translate the requested text and return the translated text but nothing \
+  else. If you dont know how to translate to a specific language, simply respond with a message \
+  stating that you dont know the language.",
+
   "You are a job interviewer, assisting someone to prepare for an upcoming job interview. \
     Your task is to simulate a realistic interview experience. Provide constructive feedback \
     on candidate's answers, offer suggestion for improvements and discuss techniques for effective \
@@ -37,7 +44,10 @@ const defaultPromptTemplateWithJD =
   " Here is the job description for the job interview: ";
 
 function startConversationSession(promptTemplate: string) {
-  const chat = new ChatOpenAI({ temperature: 0 });
+  const chat = new ChatOpenAI({
+    modelName: "gpt-3.5-turbo",
+    temperature: 0,
+  });
   const chatPrompt = ChatPromptTemplate.fromMessages([
     SystemMessagePromptTemplate.fromTemplate(promptTemplate),
     new MessagesPlaceholder("history"),
@@ -60,6 +70,7 @@ let conversations: {
   conversation: ConversationChain;
   startTime: Date;
   endTime: Date;
+  roleId: number;
   languageId: string;
   voiceId: string;
   userId: string; // TODO: req.body.userId,
@@ -110,6 +121,7 @@ const startConversation = async (req: Request, res: Response) => {
     ),
     startTime: new Date(),
     endTime: new Date(),
+    roleId: req.body.roleid,
     languageId: "English",
     voiceId: "",
     userId: "", // TODO: req.body.userId,
@@ -129,7 +141,12 @@ const startConversation = async (req: Request, res: Response) => {
     curConversationId,
     req.body.roleid
   );
-  res.status(200).json({ conversationId: curConversationId++ });
+
+  let response: string = "I am a " + botRoles[req.body.roleid];
+
+  res
+    .status(200)
+    .json({ conversationId: curConversationId++, message: response });
 };
 
 const endConversation = async (req: Request, res: Response) => {

@@ -3,6 +3,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import router from "./routes/conversationRoutes";
+//import isoLangs from "./isoLanguages.json";
 
 // Langchain
 import { config } from "dotenv";

@@ -149,10 +149,12 @@
 .input-text {
   width: calc(100% - 10px); /* Adjust the width as needed */
   padding: 8px;
-  margin-right: 0px;
+  margin-right: 3px;
+  margin-bottom: 8px;
   border-radius: 16px;
   font-size: 14px;
   font-weight: 400;
+  gap: 2px;
 }
 
 .chat-button {

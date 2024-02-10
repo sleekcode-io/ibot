@@ -28,6 +28,13 @@ export interface TextToSpeechProps {
   onBotSpeaking?: (speaking: boolean) => void;
 }
 
+export interface SpeechToTextProps {
+  sessionId: number;
+  onTextCaptured: (text: string) => void;
+  selectedLanguage: string;
+  showMicrophoneButton: boolean;
+}
+
 export interface JobFormProps {
   sessionId: number;
   mode: string;
@@ -35,3 +42,10 @@ export interface JobFormProps {
   errorMessage: string;
   onClose: () => void;
 }
+
+// export interface IsoLanguageCodes {
+//   [key: string]: {
+//     name: string;
+//     nativeName: string;
+//   };
+// }

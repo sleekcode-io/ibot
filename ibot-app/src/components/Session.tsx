@@ -27,6 +27,12 @@ let iBotRoles: {
   },
 ];
 
+let iBotLanguages: {
+  code: string;
+  name: string;
+  nativeName: string;
+}[] = [];
+
 const Session: React.FC = () => {
   const [userResponse, setUserResponse] = useState<string>("");
   const [sessionId, setSessionId] = useState<number>(-1);

@@ -5,13 +5,7 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 import Microphone from "../images/microphone.png";
-
-interface SpeechToTextProps {
-  sessionId: number;
-  onTextCaptured: (text: string) => void;
-  selectedLanguage: string;
-  showMicrophoneButton: boolean;
-}
+import { SpeechToTextProps } from "./Interfaces";
 
 const SpeechToText: React.FC<SpeechToTextProps> = ({
   sessionId,
@@ -90,7 +84,7 @@ const SpeechToText: React.FC<SpeechToTextProps> = ({
 
   if (!browserSupportsSpeechRecognition) {
     alert(
-      "Browser does not support speech recognition. Try Chrome or Safari web browser instead ..."
+      "Browser does not support speech recognition. Continue with Chat conversation only. Try Chrome or Safari web browser for voice conversation."
     );
     return null;
   }
