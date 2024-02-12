@@ -16,14 +16,19 @@ let iBotRoles: {
   help: string;
 }[] = [
   {
-    title: "Mock (Job) Interview",
+    title: "Translation",
     id: 0,
-    help: "Mock interview to prepare you for your next job interview based on your provided job description.",
+    help: "Translate text in one language to another of your choice.",
+  },
+  {
+    title: "Mock (Job) Interview",
+    id: 1,
+    help: "Prepare you for your next job interview based on your job description with mock interview.",
   },
   {
     title: "Practice A Language",
-    id: 1,
-    help: "Learn language FAST! Practice a language of your choice with bot conversation, speaking or writing.",
+    id: 2,
+    help: "Learn speaking and writing a language of your choice FAST by practicing conversation with aiBot.",
   },
 ];
 
@@ -41,7 +46,7 @@ const Session: React.FC = () => {
     TranscriptMessageProps[]
   >([]);
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [selectedRole, setSelectedRole] = useState<number>(0);
+  const [selectedRole, setSelectedRole] = useState<number>();
 
   // Invoked on component mount
   useEffect(() => {
@@ -49,10 +54,10 @@ const Session: React.FC = () => {
       "Session: status " + sessionStatus + ", sessionId " + sessionId
     );
     // Keep session alive at all times
-    if (!sessionStatus) {
+    if (!sessionStatus && selectedRole !== undefined) {
       startSession(selectedRole);
     }
-  }, [sessionStatus, sessionId]);
+  }, [sessionStatus, sessionId, selectedRole]);
 
   // Cleanup hooks when user closes tab or browser or navigate away. ---------
   useEffect(() => {
@@ -258,19 +263,15 @@ const Session: React.FC = () => {
       <div
         className="display-horizontal"
         style={{
-          width: "80vh",
-          marginTop: "2vh",
+          width: "80%",
+          //marginTop: "2vh",
           marginBottom: "1vh",
         }}
       >
-        <div style={{ fontSize: "20px", fontWeight: "500" }}>
-          What do you want to do today?
-        </div>
-        <select
-          className="display-select"
-          onChange={handleRoleChange}
-          value={selectedRole}
-        >
+        <select className="display-select" onChange={handleRoleChange}>
+          <option value="" selected disabled hidden>
+            Welcome to aiBot. What do you want to do today?
+          </option>
           {iBotRoles.map((role) => (
             <option key={role.title} value={role.id}>
               {role.title}
@@ -290,14 +291,21 @@ const Session: React.FC = () => {
           overflowWrap: "anywhere",
         }}
       >
-        {`${iBotRoles[selectedRole].help}`}
+        {selectedRole !== undefined ? `${iBotRoles[selectedRole].help}` : " "}
       </div>
       <div className="session-container">
-        <AIBot
-          sessionId={sessionId}
-          transcriptMessages={transcriptMessages}
-          onUserInput={handleUserResponse}
-        />
+        {sessionId >= 0 ? (
+          <div>
+            {" "}
+            <AIBot
+              sessionId={sessionId}
+              transcriptMessages={transcriptMessages}
+              onUserInput={handleUserResponse}
+            />
+          </div>
+        ) : (
+          ""
+        )}
       </div>
     </div>
   );

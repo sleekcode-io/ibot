@@ -1,67 +1,134 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import isoLangs from "../isoLanguages.json";
+import isoLanguages from "../isoLanguages.json";
 import "../App.css";
 import "../styles/TextToSpeech.css";
-import { TextToSpeechProps } from "./Interfaces";
-
-interface IsoLanguageProps {
-  code: string;
-  name: string;
-  nativeName: string;
-  greeting: string;
-}
+import { TextToSpeechProps, IsoLanguageProps } from "./Interfaces";
 
 const TextToSpeech: React.FC<TextToSpeechProps> = ({
   cancelSpeaking,
   text,
   onLangChanged,
-  onBotSpeaking,
+  //onBotSpeaking,
 }) => {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice>();
+  const [languages, setLanguages] = useState<IsoLanguageProps[]>([]);
+  const [selectLang, setSelectLang] = useState<IsoLanguageProps>();
+
+  const excludedVoices = [
+    "Grandpa",
+    "Grandma",
+    "Princess",
+    "Albert",
+    "Bad News",
+    "Good News",
+    "Bahh",
+    "Bells",
+    "Boing",
+    "Bubbles",
+    "Cellos",
+    "Fred",
+    "Jester",
+    "Junior",
+    "Organ",
+    "Sandy",
+    "Superstar",
+    "Trinoids",
+    "Whisper",
+    "Wobble",
+    "Zarvox",
+  ];
+
+  // Generate list of voices for particular language
+  const getVoiceList = (langCode: string, greeting: string) => {
+    console.log("getVoiceList: language %s", langCode);
+    const synth = window.speechSynthesis;
+    const availableVoices = synth.getVoices(); // List of avail voices offered by browser
+    console.log("availableVoices %d", availableVoices.length);
+    // Filter out weird voices
+    const usableVoices = availableVoices.filter(
+      (voice) => !excludedVoices.includes(voice.name)
+    );
+    console.log("usableVoices %d", usableVoices.length);
+    // Filter out voice for specified language
+    const filteredVoices = usableVoices.filter((voice) =>
+      voice.lang.includes(langCode)
+    );
+    console.log("getVoiceList: filter voices: %d", filteredVoices.length);
+
+    // Reset available voice list matching specified language
+    setVoices(filteredVoices);
+
+    // Set a default voice
+    if (filteredVoices.length > 0) {
+      let defaultVoice = filteredVoices[0];
+
+      console.log("TextToSpeech: selected voice: " + defaultVoice.name);
+      let defaultGreeting = "Hello, welcome to iBot. Please select a language.";
+      let text = greeting ? greeting : defaultGreeting;
+
+      window.speechSynthesis.cancel(); // cutting short of any ongoing speech
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.voice = defaultVoice;
+      window.speechSynthesis.speak(utterance); // speak greeting message
+      setSelectedVoice(defaultVoice);
+    }
+  };
+
+  // Init: load supported language list
 
   useEffect(() => {
-    console.log("TextToSpeech: FETCH_VOICE");
-    let excludedVoices = [
-      "Grandpa",
-      "Grandma",
-      "Princess",
-      "Albert",
-      "Bad News",
-      "Good News",
-      "Bahh",
-      "Bells",
-      "Boing",
-      "Bubbles",
-      "Cellos",
-      "Organ",
-      "Superstar",
-      "Trinoids",
-      "Whisper",
-      "Wobble",
-      "Zarvox",
-    ];
+    console.log("TextToSpeech: FETCH_LANG");
 
-    const fetchVoices = () => {
-      const synth = window.speechSynthesis;
-      const availableVoices = synth.getVoices();
-      const usableVoices = availableVoices.filter(
-        (voice) => !excludedVoices.includes(voice.name)
+    const fetchLanguages = () => {
+      console.log(
+        "fetchVoices: language %s",
+        selectLang ? selectLang.code : "?"
       );
 
-      setVoices(usableVoices);
+      const synth = window.speechSynthesis;
+      const availableVoices = synth.getVoices(); // List of avail voices offered by browser
+      console.log("availableVoices %d", availableVoices.length);
 
-      // Set a default voice, or you can let the user choose one
-      setSelectedVoice(usableVoices[0]);
+      const usableVoices = availableVoices.filter(
+        // Exclude weird voices
+        (voice) => !excludedVoices.includes(voice.name)
+      );
+      console.log("usableVoices %d", usableVoices.length);
+
+      const availableLanguages: IsoLanguageProps[] = isoLanguages.filter(
+        (lang) =>
+          lang.greeting != null ||
+          lang.greeting != undefined ||
+          lang.greeting != ""
+      );
+      // Now, update availableLanguages with voice count
+      for (const i in availableLanguages) {
+        let voiceList = usableVoices.filter((voice) =>
+          voice.lang.includes(availableLanguages[i].code)
+        );
+        availableLanguages[i].availVoices = voiceList.length;
+      }
+      const langWithVoiceList = availableLanguages.filter(
+        (lang) => lang.availVoices > 0
+      );
+
+      // At beginning, on available languages is set for selection.
+      // Voice list will be set when a language is selected by user
+      setLanguages(langWithVoiceList);
     };
 
-    fetchVoices();
+    fetchLanguages();
 
-    window.speechSynthesis.addEventListener("voiceschanged", fetchVoices);
+    // When original voice list is changed, update language list.
+    window.speechSynthesis.addEventListener("voiceschanged", fetchLanguages);
 
     return () => {
-      window.speechSynthesis.removeEventListener("voiceschanged", fetchVoices);
+      window.speechSynthesis.removeEventListener(
+        "voiceschanged",
+        fetchLanguages
+      );
     };
   }, []); // Empty dependency array ensures the effect runs only once (on mount) and cleans up on unmount
 
@@ -79,7 +146,6 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
       //     onBotSpeaking(true);
       //   }
       // });
-
       // utterance.addEventListener("end", () => {
       //   console.log("TextToSpeech: SPEAKING_END");
       //   if (onBotSpeaking) {
@@ -87,9 +153,6 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
       //   }
       // });
       window.speechSynthesis.speak(utterance);
-      // return () => {
-      //   //window.speechSynthesis.cancel();
-      // };
     }
   }, [text, selectedVoice]);
 
@@ -101,36 +164,37 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
     }
   }, [cancelSpeaking]);
 
+  // Handle language/voice change in TextToSpeech component
+  const handleLanguageChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const selectedLangName = event.target.value; // lang.name (lang.code)
+    const selectedLang = languages.find((lang) =>
+      selectedLangName.includes(lang.name)
+    );
+    if (selectedLang) {
+      setSelectLang(selectedLang);
+      getVoiceList(selectedLang.code, selectedLang.greeting); // Update voice list based on selected language
+
+      // onLangChanged(selectedLang); // invoke callback
+    }
+  };
+
   // Handle voice change from user's selection. This can be done even if session is not active.
+  // TODO: use selectLang to id greeting message instead of matching.
+  //
   const handleVoiceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedVoiceName = event.target.value;
     const selectedVoice = voices.find(
       (voice) => voice.name === selectedVoiceName
     );
-    const getGreetingMessage = (lang: string) => {
-      const languages: IsoLanguageProps[] = isoLangs;
-      const match = lang.match(/\b([a-z]{2})-[A-Z]{2}\b/);
-      const langCode = match ? match[1] : null; // Extract the language code
-
-      if (langCode == null) {
-        console.log("getGreetingMessage: language code not found.");
-        return "";
-      }
-      for (const i in languages) {
-        if (languages[i].code === langCode) {
-          return languages[i].greeting;
-        }
-      }
-      console.log("getGreetingMessage: unknown language code (%s)", langCode);
-      return "";
-    };
 
     if (selectedVoice) {
-      console.log("TextToSpeech: selected language: " + selectedVoice.lang);
+      console.log("TextToSpeech: selected voice: " + selectedVoice.name);
+      let defaultGreeting = "Hello, welcome to iBot. Please select a language.";
 
-      text = getGreetingMessage(selectedVoice.lang);
+      text = selectLang ? selectLang.greeting : defaultGreeting;
 
-      onLangChanged(selectedVoice.lang); // invoke callback to handle language change
       window.speechSynthesis.cancel(); // cutting short of any ongoing speech
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.voice = selectedVoice;
@@ -142,18 +206,35 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
   return (
     <div>
       <div
+        className="display-horizontal"
         style={{
           marginBottom: "3vh",
         }}
       >
         <select
           className="display-select"
+          style={{ width: "80%" }}
+          id="languages"
+          onChange={handleLanguageChange}
+        >
+          <option value="" selected disabled hidden>
+            Select Language
+          </option>
+          {languages.map((language) => (
+            <option key={language.name} value={language.name}>
+              {`${language.name} (${language.code})`}
+            </option>
+          ))}
+        </select>
+        <select
+          className="display-select"
+          style={{ width: "80%" }}
           id="voices"
           onChange={handleVoiceChange}
         >
           {voices.map((voice) => (
             <option key={voice.name} value={voice.name}>
-              {`${voice.name} - ${voice.lang}`}
+              {`${voice.name}`}
             </option>
           ))}
         </select>

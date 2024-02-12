@@ -14,7 +14,7 @@ import { BufferMemory } from "langchain/memory";
 const botRoles = ["translator", "job interviewer", "language practitioner"];
 
 const defaultPromptTemplate = [
-  "You are a translator, helping users to translate text to a language of which code is given \
+  "You are a translator, helping users to translate text to a language of which code or name is given \
   by the user. Simply translate the requested text and return the translated text but nothing \
   else. If you dont know how to translate to a specific language, simply respond with a message \
   stating that you dont know the language.",

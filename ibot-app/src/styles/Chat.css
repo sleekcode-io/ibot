@@ -38,6 +38,7 @@
   background-color: #803d84;
   justify-content: flex-start;
   color: #fff;
+  white-space: pre-wrap;
 }
 
 .bot-timestamp-message {

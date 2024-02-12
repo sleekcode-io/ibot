@@ -2,19 +2,23 @@ import React, { useState, useRef, useEffect } from "react";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
-
+import SpeechToText from "./SpeechToText";
+import TextToSpeech from "./TextToSpeech";
+import {
+  AIBotProps,
+  IsoLanguageProps,
+  TranscriptMessageProps,
+} from "./Interfaces";
+/* Images */
+import iBotAvatar from "../images/ibotai.png";
+import userAvatar from "../images/user-avatar.png";
+import SendImage from "../images/send.png";
 import TranscriptDownloadImage from "../images/download-file.png";
-import TranscriptDownloadImage1 from "../images/transcript-download.png";
 import CaptionImage from "../images/cc.png";
 import CancelSpeakingImage from "../images/silent-blue-1.png";
 import VideoImage from "../images/video-camera.png";
 import TextImage from "../images/chat.png";
-import SpeechToText from "./SpeechToText";
-import TextToSpeech from "./TextToSpeech";
-import { AIBotProps, TranscriptMessageProps } from "./Interfaces";
-import iBotAvatar from "../images/ibotai.png";
-import userAvatar from "../images/user-avatar.png";
-import SendImage from "../images/send.png";
+/* Styles */
 import "../App.css";
 import "../styles/Chat.css";
 import "../styles/AIBot.css";
@@ -63,8 +67,10 @@ const AIBot: React.FC<AIBotProps> = ({
       }
     };
     // If speechRecognition is support, start webcam for full video/voice/chat support
-    if (browserSupportsSpeechRecognition) startWebcam();
-    else {
+    if (browserSupportsSpeechRecognition) {
+      startWebcam();
+    } else {
+      setShowWebcamVideo(false);
       alert(
         "Browser does not support speech recognition. Continue with Chat conversation only. Try Chrome or Safari web browser for voice conversation."
       );
@@ -132,12 +138,6 @@ const AIBot: React.FC<AIBotProps> = ({
     setBotResponse("");
   };
 
-  // Handle language/voice change in TextToSpeech component
-  const handleLangChanged = async (lang: string) => {
-    console.log("AIBot->handleLangChanged: old %s new %s", language, lang);
-    setLanguage(lang);
-  };
-
   // Bot start/stop speaking events from Text2Speech component
   const handleBotSpeaking = async (speaking: boolean) => {
     //console.log("handleBotSpeaking: SPEAKING " + speaking);
@@ -182,7 +182,7 @@ const AIBot: React.FC<AIBotProps> = ({
     index: number,
     message: TranscriptMessageProps
   ) => {
-    console.log("AIBot->handleMessageDisplay: " + index);
+    console.log("AIBot->handleMessageDisplay: %d", index);
     if (showWebcamVideo || message === null || message === undefined) {
       return;
     }
@@ -223,6 +223,7 @@ const AIBot: React.FC<AIBotProps> = ({
         </div>
       );
     } else if (message.from === "You") {
+      //let msg = message.msg.replace(/\n/g, "&#10;").replace(/\t/g, "&#9;");
       return (
         <div>
           <div className="user-timestamp-message">{laterMessage}</div>
@@ -241,6 +242,10 @@ const AIBot: React.FC<AIBotProps> = ({
         "AIBot->handleMessageDisplay: Invalid message source: " + message.from
       );
     }
+  };
+
+  const handleLanguageChange = (selectLanguage: IsoLanguageProps) => {
+    console.log("handleLanguageChange: language: ", selectLanguage.name);
   };
 
   // TODO: This message list is re-rendered on every user input.
@@ -280,6 +285,11 @@ const AIBot: React.FC<AIBotProps> = ({
                 visibility: showWebcamVideo ? "hidden" : "visible",
               }}
             >
+              <div
+                style={{
+                  marginBottom: "3vh",
+                }}
+              ></div>
               <div
                 className="chat-window"
                 style={{
@@ -340,8 +350,8 @@ const AIBot: React.FC<AIBotProps> = ({
               <TextToSpeech
                 cancelSpeaking={cancelBotSpeaking}
                 text={botResponse}
-                onLangChanged={handleLangChanged}
-                onBotSpeaking={handleBotSpeaking}
+                onLangChanged={handleLanguageChange}
+                //onBotSpeaking={handleBotSpeaking}
               />
 
               <video

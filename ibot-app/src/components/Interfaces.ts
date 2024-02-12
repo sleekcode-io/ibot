@@ -24,8 +24,8 @@ export interface AIBotProps {
 export interface TextToSpeechProps {
   cancelSpeaking: boolean;
   text: string;
-  onLangChanged: (text: string) => void;
-  onBotSpeaking?: (speaking: boolean) => void;
+  onLangChanged: (selectLang: IsoLanguageProps) => void;
+  //onBotSpeaking?: (speaking: boolean) => void;
 }
 
 export interface SpeechToTextProps {
@@ -43,9 +43,10 @@ export interface JobFormProps {
   onClose: () => void;
 }
 
-// export interface IsoLanguageCodes {
-//   [key: string]: {
-//     name: string;
-//     nativeName: string;
-//   };
-// }
+export interface IsoLanguageProps {
+  code: string;
+  name: string;
+  nativeName: string;
+  greeting: string;
+  availVoices: number;
+}
