@@ -244,8 +244,9 @@ const AIBot: React.FC<AIBotProps> = ({
     }
   };
 
-  const handleLanguageChange = (selectLanguage: IsoLanguageProps) => {
-    console.log("handleLanguageChange: language: ", selectLanguage.name);
+  const handleLanguageChange = (selectedLanguage: IsoLanguageProps) => {
+    console.log("handleLanguageChange: language: ", selectedLanguage.name);
+    setLanguage(selectedLanguage.code);
   };
 
   // TODO: This message list is re-rendered on every user input.
@@ -312,19 +313,22 @@ const AIBot: React.FC<AIBotProps> = ({
                     type="text"
                     value={userInput}
                     onChange={handleInputChange}
-                    onKeyPress={handleKeyPress}
+                    //onKeyPress={handleKeyPress}
                     className="input-text"
                     placeholder="Type your message..."
                   />
                   <button
-                    className="chat-button"
                     onClick={handleSend}
                     style={{
-                      backgroundColor: userInput !== "" ? "#fff" : "#d8d8d8",
+                      backgroundColor: "transparent",
+                      justifyItems: "top",
+                      border: "none",
+                      opacity: userInput !== "" ? 1 : 0.6,
+                      cursor: userInput !== "" ? "pointer" : "not-allowed",
                     }}
                   >
                     <div className="tooltip">
-                      <img src={SendImage} alt="S" width="18px" height="18px" />
+                      <img src={SendImage} alt="S" width="36px" height="36px" />
                       {userInput !== "" ? (
                         <span className="tooltiptext">Send user input</span>
                       ) : (
@@ -373,7 +377,7 @@ const AIBot: React.FC<AIBotProps> = ({
           <div
             className="caption-container"
             style={{
-              marginTop: "-5.5vh",
+              marginTop: "-2vh",
               visibility: showCaption && showWebcamVideo ? "visible" : "hidden",
             }}
           >
@@ -564,7 +568,7 @@ const AIBot: React.FC<AIBotProps> = ({
                       backgroundColor: "transparent",
                       border: "none",
                       justifyItems: "top",
-                      opacity: transcriptMessages.length > 0 ? 1 : 0.6,
+                      opacity: transcriptMessages.length > 1 ? 1 : 0.6,
                       cursor: transcriptMessages.length
                         ? "pointer"
                         : "not-allowed",

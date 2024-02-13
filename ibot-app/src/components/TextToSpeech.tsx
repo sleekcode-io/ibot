@@ -12,6 +12,7 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
   //onBotSpeaking,
 }) => {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [usableVoices, setUsableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice>();
   const [languages, setLanguages] = useState<IsoLanguageProps[]>([]);
   const [selectLang, setSelectLang] = useState<IsoLanguageProps>();
@@ -43,19 +44,50 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
   // Generate list of voices for particular language
   const getVoiceList = (langCode: string, greeting: string) => {
     console.log("getVoiceList: language %s", langCode);
-    const synth = window.speechSynthesis;
-    const availableVoices = synth.getVoices(); // List of avail voices offered by browser
-    console.log("availableVoices %d", availableVoices.length);
-    // Filter out weird voices
-    const usableVoices = availableVoices.filter(
-      (voice) => !excludedVoices.includes(voice.name)
-    );
+
+    if (usableVoices.length === 0) {
+      const synth = window.speechSynthesis;
+      // const availableVoices = synth.getVoices(); // List of avail voices offered by browser
+
+      const availVoices = synth.getVoices(); // List of avail voices offered by browser
+      const availableVoices: SpeechSynthesisVoice[] = [];
+      console.log("availVoices: length %d", availVoices.length);
+
+      for (const i in availVoices) {
+        //console.log(availVoices[i].name, availVoices[i].lang);
+        // Check if current voice is a duplicate?
+        const duplicateVoices = availableVoices.filter(
+          (voice) =>
+            voice.name + voice.lang ===
+            availVoices[i].name + availVoices[i].lang
+        );
+        if (duplicateVoices.length === 0) {
+          // No, add it to available voice list
+          // console.log(">>> Add- %s %s", availVoices[i].name, availVoices[i].lang);
+          availableVoices.push(availVoices[i]);
+        }
+        // else {
+        //   console.log(
+        //     ">>> DUP- %s %s",
+        //     availVoices[i].name,
+        //     availVoices[i].lang
+        //   );
+        // }
+      }
+      console.log("availableVoices length %d", availableVoices.length);
+
+      // Filter out weird voices
+      const usableVoices = availableVoices.filter(
+        (voice) => !excludedVoices.includes(voice.name)
+      );
+    }
+
     console.log("usableVoices %d", usableVoices.length);
-    // Filter out voice for specified language
+    // Filter out voice for specified language code
     const filteredVoices = usableVoices.filter((voice) =>
-      voice.lang.includes(langCode)
+      voice.lang.includes(langCode + "-")
     );
-    console.log("getVoiceList: filter voices: %d", filteredVoices.length);
+    console.log("filtered voices: %d", filteredVoices.length);
 
     // Reset available voice list matching specified language
     setVoices(filteredVoices);
@@ -88,7 +120,32 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
       );
 
       const synth = window.speechSynthesis;
-      const availableVoices = synth.getVoices(); // List of avail voices offered by browser
+      //const availableVoices = synth.getVoices(); // List of avail voices offered by browser
+
+      const availVoices = synth.getVoices(); // List of avail voices offered by browser
+      const availableVoices: SpeechSynthesisVoice[] = [];
+      console.log("availVoices: length %d", availVoices.length);
+
+      for (const i in availVoices) {
+        console.log(availVoices[i].name, availVoices[i].lang);
+        // Check if current voice is a duplicate?
+        const duplicateVoices = availableVoices.filter(
+          (voice) =>
+            voice.name + voice.lang ===
+            availVoices[i].name + availVoices[i].lang
+        );
+        if (duplicateVoices.length === 0) {
+          // No, add it to available voice list
+          // console.log(">>> Add- %s %s", availVoices[i].name, availVoices[i].lang);
+          availableVoices.push(availVoices[i]);
+        } else {
+          console.log(
+            ">>> DUP- %s %s",
+            availVoices[i].name,
+            availVoices[i].lang
+          );
+        }
+      }
       console.log("availableVoices %d", availableVoices.length);
 
       const usableVoices = availableVoices.filter(
@@ -117,11 +174,12 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
       // At beginning, on available languages is set for selection.
       // Voice list will be set when a language is selected by user
       setLanguages(langWithVoiceList);
+      setUsableVoices(usableVoices);
     };
 
     fetchLanguages();
 
-    // When original voice list is changed, update language list.
+    // When original voice list is changed, refresh language and voice lists.
     window.speechSynthesis.addEventListener("voiceschanged", fetchLanguages);
 
     return () => {
@@ -176,7 +234,7 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
       setSelectLang(selectedLang);
       getVoiceList(selectedLang.code, selectedLang.greeting); // Update voice list based on selected language
 
-      // onLangChanged(selectedLang); // invoke callback
+      onLangChanged(selectedLang); // invoke callback
     }
   };
 
@@ -184,9 +242,9 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
   // TODO: use selectLang to id greeting message instead of matching.
   //
   const handleVoiceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedVoiceName = event.target.value;
+    const selectedVoiceName = event.target.value; // name+lang
     const selectedVoice = voices.find(
-      (voice) => voice.name === selectedVoiceName
+      (voice) => voice.name + voice.lang === selectedVoiceName
     );
 
     if (selectedVoice) {
@@ -202,6 +260,13 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
       setSelectedVoice(selectedVoice);
     }
   };
+
+  if (voices.length > 0) {
+    console.log("length: %d", voices.length);
+    for (const i in voices) {
+      console.log(">" + voices[i].name + "," + voices[i].lang);
+    }
+  }
 
   return (
     <div>
@@ -221,7 +286,7 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
             Select Language
           </option>
           {languages.map((language) => (
-            <option key={language.name} value={language.name}>
+            <option key={language.code} value={language.name}>
               {`${language.name} (${language.code})`}
             </option>
           ))}
@@ -233,8 +298,11 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
           onChange={handleVoiceChange}
         >
           {voices.map((voice) => (
-            <option key={voice.name} value={voice.name}>
-              {`${voice.name}`}
+            <option
+              key={voice.name + voice.lang}
+              value={voice.name + voice.lang}
+            >
+              {`${voice.name} (${voice.lang})`}
             </option>
           ))}
         </select>

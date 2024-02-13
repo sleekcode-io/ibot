@@ -148,9 +148,26 @@ const Session: React.FC = () => {
     curSessionId = -1;
 
     // Will cancel ongoing speech, stop listening here ...
-    await axios.post("http://localhost:5205/conversation/v1/end", {
-      id: sessId,
-    });
+    try {
+      let response = await axios.post(
+        "http://localhost:5205/conversation/v1/end",
+        {
+          id: sessId,
+        }
+      );
+    } catch (e) {
+      let error = "";
+      if (typeof e === "string") {
+        error = e.toUpperCase();
+      } else if (e instanceof Error) {
+        error = e.message;
+      }
+      console.error("endSession error: " + error);
+      curSessionId = -1;
+      let msg =
+        error +
+        ". Check your Internet connection and reload web browser to try again. ";
+    }
     curSessionId = -1;
     setSessionId(-1);
     setSessionStatus(false);
