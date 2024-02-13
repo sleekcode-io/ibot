@@ -313,7 +313,7 @@ const AIBot: React.FC<AIBotProps> = ({
                     type="text"
                     value={userInput}
                     onChange={handleInputChange}
-                    //onKeyPress={handleKeyPress}
+                    onKeyPress={handleKeyPress}
                     className="input-text"
                     placeholder="Type your message..."
                   />

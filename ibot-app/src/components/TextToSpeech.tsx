@@ -261,12 +261,12 @@ const TextToSpeech: React.FC<TextToSpeechProps> = ({
     }
   };
 
-  if (voices.length > 0) {
-    console.log("length: %d", voices.length);
-    for (const i in voices) {
-      console.log(">" + voices[i].name + "," + voices[i].lang);
-    }
-  }
+  // if (voices.length > 0) {
+  //   console.log("length: %d", voices.length);
+  //   for (const i in voices) {
+  //     console.log(">" + voices[i].name + "," + voices[i].lang);
+  //   }
+  // }
 
   return (
     <div>
